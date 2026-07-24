@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, ShoppingCart, Users, Gem, Ticket, Settings, Plus, Trash2, Check, RefreshCw, Eye, MessageCircle, AlertCircle, TrendingUp, Pencil, X } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Users, Gem, Ticket, Settings, Plus, Trash2, Check, RefreshCw, Eye, MessageCircle, AlertCircle, TrendingUp, Pencil, X, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Product, Order, Coupon, AppSettings } from '../types';
 import { GlassCard, PremiumButton, GlassInput, Badge } from './DesignSystem';
@@ -16,6 +16,7 @@ interface AdminViewProps {
   onAddCoupon: (coupon: Coupon) => void;
   onToggleCoupon: (code: string) => void;
   onUpdateSettings: (settings: AppSettings) => void;
+  onLogout?: () => void;
 }
 
 export default function AdminView({
@@ -29,7 +30,8 @@ export default function AdminView({
   onDeleteProduct,
   onAddCoupon,
   onToggleCoupon,
-  onUpdateSettings
+  onUpdateSettings,
+  onLogout
 }: AdminViewProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'coupons' | 'settings'>('overview');
 
@@ -243,31 +245,49 @@ export default function AdminView({
         </div>
 
         {/* Action tags */}
-        <div className="flex gap-2 self-start md:self-center bg-white/[0.02] p-1 rounded-xl border border-white/5 font-sans text-xs">
-          <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'overview' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'orders' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
-          >
-            Pedidos ({orders.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('products')}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'products' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
-          >
-            Produtos
-          </button>
-          <button
-            onClick={() => setActiveTab('coupons')}
-            className={`px-4 py-2 rounded-lg cursor-pointer transition-all ${activeTab === 'coupons' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
-          >
-            Cupons
-          </button>
+        <div className="flex flex-wrap gap-2 items-center self-start md:self-center">
+          <div className="flex flex-wrap gap-1 bg-white/[0.02] p-1 rounded-xl border border-white/5 font-sans text-xs">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === 'overview' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === 'orders' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
+            >
+              Pedidos ({orders.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === 'products' ? 'bg-white/10 text-white font-semibold' : 'text-[#A1A1A6] hover:text-white'}`}
+            >
+              Produtos
+            </button>
+            <button
+              onClick={() => setActiveTab('coupons')}
+              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === 'coupons' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
+            >
+              Cupons
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${activeTab === 'settings' ? 'bg-white/10 text-white font-semibold' : 'text-zinc-400 hover:text-white'}`}
+            >
+              Configurações
+            </button>
+          </div>
+
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-950/10 hover:bg-red-950/25 text-red-400 hover:text-red-300 border border-red-500/10 hover:border-red-500/30 transition-all font-sans text-xs cursor-pointer select-none active:scale-95"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sair</span>
+            </button>
+          )}
         </div>
       </div>
 

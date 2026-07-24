@@ -15,13 +15,31 @@ import ProductDetailsView from './components/ProductDetailsView';
 import CartView from './components/CartView';
 import CheckoutView from './components/CheckoutView';
 import AdminView from './components/AdminView';
+import AdminLogin from './components/AdminLogin';
 import { GlobalKeyframes, GlassCard, PremiumButton, GlassInput, Badge } from './components/DesignSystem';
 
 export default function App() {
   // --- Persistent Local States (Acting like an integrated Supabase replica db) ---
-  const [currentView, setCurrentView] = useState<ViewState>(() => {
-    // Default to 'home'
+  const [currentView, _setCurrentView] = useState<ViewState>(() => {
+    const path = window.location.pathname;
+    if (path === '/admin') return 'admin';
+    if (path === '/cart') return 'cart';
+    if (path === '/checkout') return 'checkout';
+    if (path === '/catalog') return 'catalog';
+    if (path === '/product_details') return 'product_details';
     return 'home';
+  });
+
+  const setCurrentView = (view: ViewState) => {
+    _setCurrentView(view);
+    const path = view === 'home' ? '/' : `/${view}`;
+    if (window.location.pathname !== path) {
+      window.history.pushState({ view }, '', path);
+    }
+  };
+
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
+    return sessionStorage.getItem('bodin_admin_auth') === 'true';
   });
 
   const [settings, setSettings] = useState<AppSettings>(() => {
@@ -106,6 +124,29 @@ export default function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentView]);
+
+  // Synchronize view state with browser routing (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path === '/admin') {
+        _setCurrentView('admin');
+      } else if (path === '/cart') {
+        _setCurrentView('cart');
+      } else if (path === '/checkout') {
+        _setCurrentView('checkout');
+      } else if (path === '/catalog') {
+        _setCurrentView('catalog');
+      } else if (path === '/product_details') {
+        _setCurrentView('product_details');
+      } else {
+        _setCurrentView('home');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // --- Operations / Mutations ---
   const handleToggleFavorite = (e: React.MouseEvent, productId: string) => {
@@ -748,19 +789,35 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <AdminView
-                products={products}
-                orders={orders}
-                coupons={coupons}
-                settings={settings}
-                onAddProduct={handleAdminAddProduct}
-                onUpdateProduct={handleAdminUpdateProduct}
-                onUpdateOrderStatus={handleAdminUpdateOrderStatus}
-                onDeleteProduct={handleAdminDeleteProduct}
-                onAddCoupon={handleAdminAddCoupon}
-                onToggleCoupon={handleAdminToggleCoupon}
-                onUpdateSettings={handleAdminUpdateSettings}
-              />
+              {isAdminAuthenticated ? (
+                <AdminView
+                  products={products}
+                  orders={orders}
+                  coupons={coupons}
+                  settings={settings}
+                  onAddProduct={handleAdminAddProduct}
+                  onUpdateProduct={handleAdminUpdateProduct}
+                  onUpdateOrderStatus={handleAdminUpdateOrderStatus}
+                  onDeleteProduct={handleAdminDeleteProduct}
+                  onAddCoupon={handleAdminAddCoupon}
+                  onToggleCoupon={handleAdminToggleCoupon}
+                  onUpdateSettings={handleAdminUpdateSettings}
+                  onLogout={() => {
+                    setIsAdminAuthenticated(false);
+                    sessionStorage.removeItem('bodin_admin_auth');
+                  }}
+                />
+              ) : (
+                <AdminLogin
+                  onSuccess={() => {
+                    setIsAdminAuthenticated(true);
+                    sessionStorage.setItem('bodin_admin_auth', 'true');
+                  }}
+                  onCancel={() => {
+                    setCurrentView('home');
+                  }}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
