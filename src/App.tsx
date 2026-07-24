@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Instagram, MessageCircle, ShieldCheck, Sparkles, Lock, CreditCard, ArrowRight, Search, SlidersHorizontal, Heart, Trash2, Award, Truck, Check } from 'lucide-react';
 
-import { Product, CartItem, Order, Coupon, ViewState } from './types';
+import { Product, CartItem, Order, Coupon, ViewState, AppSettings } from './types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_COUPONS, SYSTEM_BENEFITS } from './data';
 
 // Import Custom Crafted Components
@@ -22,6 +22,15 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewState>(() => {
     // Default to 'home'
     return 'home';
+  });
+
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const saved = localStorage.getItem('bodin_settings');
+    return saved ? JSON.parse(saved) : {
+      whatsapp: '5511999999999',
+      cepOrigem: '04571-010',
+      minFreteGratis: 250.00
+    };
   });
 
   const [products, setProducts] = useState<Product[]>(() => {
@@ -88,6 +97,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('bodin_cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('bodin_settings', JSON.stringify(settings));
+  }, [settings]);
 
   // Scroll to top on view change
   useEffect(() => {
@@ -198,6 +211,10 @@ export default function App() {
     );
   };
 
+  const handleAdminUpdateSettings = (updatedSettings: AppSettings) => {
+    setSettings(updatedSettings);
+  };
+
   // --- Filter Catalog Engine Logic ---
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -229,7 +246,7 @@ export default function App() {
   // Direct contact consult links
   const handleWhatsAppGeneral = () => {
     const text = "Olá! Gostaria de falar com o consultor de vendas da Bodin Jóias para ver fotos reais de peças e tirar dúvidas.";
-    window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
@@ -260,7 +277,10 @@ export default function App() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <HeroBanner onExplore={() => setCurrentView('catalog')} />
+              <HeroBanner
+                onExplore={() => setCurrentView('catalog')}
+                whatsapp={settings.whatsapp}
+              />
 
               {/* Section: Category highlights */}
               <section className="py-16 px-4 md:px-8 max-w-7xl mx-auto text-center flex flex-col gap-10">
@@ -659,6 +679,7 @@ export default function App() {
               <ProductDetailsView
                 product={selectedProduct}
                 isFavorited={favorites.includes(selectedProduct.id)}
+                whatsapp={settings.whatsapp}
                 onToggleFavorite={handleToggleFavorite}
                 onAddToCart={handleAddToCart}
                 onBuyNow={handleBuyNow}
@@ -707,6 +728,7 @@ export default function App() {
                 shipping={checkoutTotals.shipping}
                 total={checkoutTotals.total}
                 couponCode={checkoutTotals.couponCode}
+                settings={settings}
                 onOrderCompleted={handleOrderCompleted}
                 onBackToCart={() => setCurrentView('cart')}
                 onBackToHome={() => {
@@ -730,12 +752,14 @@ export default function App() {
                 products={products}
                 orders={orders}
                 coupons={coupons}
+                settings={settings}
                 onAddProduct={handleAdminAddProduct}
                 onUpdateProduct={handleAdminUpdateProduct}
                 onUpdateOrderStatus={handleAdminUpdateOrderStatus}
                 onDeleteProduct={handleAdminDeleteProduct}
                 onAddCoupon={handleAdminAddCoupon}
                 onToggleCoupon={handleAdminToggleCoupon}
+                onUpdateSettings={handleAdminUpdateSettings}
               />
             </motion.div>
           )}

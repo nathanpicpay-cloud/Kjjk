@@ -7,6 +7,7 @@ import { GlassCard, PremiumButton, Badge } from './DesignSystem';
 interface ProductDetailsViewProps {
   product: Product;
   isFavorited: boolean;
+  whatsapp?: string;
   onToggleFavorite: (e: React.MouseEvent, productId: string) => void;
   onAddToCart: (item: CartItem) => void;
   onBuyNow: (item: CartItem) => void;
@@ -18,6 +19,7 @@ interface ProductDetailsViewProps {
 export default function ProductDetailsView({
   product,
   isFavorited,
+  whatsapp = '5511999999999',
   onToggleFavorite,
   onAddToCart,
   onBuyNow,
@@ -70,7 +72,7 @@ export default function ProductDetailsView({
   // WhatsApp individual piece direct template link
   const handleWhatsAppConsult = () => {
     const text = `Olá! Tenho interesse no *${product.name}* (Tamanho: ${selectedLength}, Fecho: ${selectedClasp}) no valor de R$ ${product.price.toFixed(2).replace('.', ',')}. Pode me enviar mais fotos reais?`;
-    window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handleAddReview = (e: React.FormEvent) => {

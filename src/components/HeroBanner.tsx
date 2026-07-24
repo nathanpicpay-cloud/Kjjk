@@ -5,13 +5,14 @@ import { PremiumButton } from './DesignSystem';
 
 interface HeroBannerProps {
   onExplore: () => void;
+  whatsapp?: string;
 }
 
-export default function HeroBanner({ onExplore }: HeroBannerProps) {
+export default function HeroBanner({ onExplore, whatsapp = '5511999999999' }: HeroBannerProps) {
   // WhatsApp direct template link for simulated luxury support
   const handleWhatsAppSupport = () => {
     const message = encodeURIComponent("Olá! Estou no site da Bodin Jóias e gostaria de falar com um consultor para atendimento personalizado.");
-    window.open(`https://wa.me/5511999999999?text=${message}`, '_blank');
+    window.open(`https://wa.me/${whatsapp}?text=${message}`, '_blank');
   };
 
   return (

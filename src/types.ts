@@ -75,3 +75,10 @@ export interface Order {
 }
 
 export type ViewState = 'home' | 'catalog' | 'product_details' | 'cart' | 'checkout' | 'admin';
+
+export interface AppSettings {
+  whatsapp: string;
+  cepOrigem: string;
+  minFreteGratis: number;
+}
+

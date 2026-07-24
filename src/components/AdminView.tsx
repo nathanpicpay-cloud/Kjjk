@@ -1,31 +1,35 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, ShoppingCart, Users, Gem, Ticket, Settings, Plus, Trash2, Check, RefreshCw, Eye, MessageCircle, AlertCircle, TrendingUp, Pencil, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Product, Order, Coupon } from '../types';
+import { Product, Order, Coupon, AppSettings } from '../types';
 import { GlassCard, PremiumButton, GlassInput, Badge } from './DesignSystem';
 
 interface AdminViewProps {
   products: Product[];
   orders: Order[];
   coupons: Coupon[];
+  settings: AppSettings;
   onAddProduct: (newProduct: Product) => void;
   onUpdateProduct: (updatedProduct: Product) => void;
   onUpdateOrderStatus: (orderId: string, status: Order['status']) => void;
   onDeleteProduct: (productId: string) => void;
   onAddCoupon: (coupon: Coupon) => void;
   onToggleCoupon: (code: string) => void;
+  onUpdateSettings: (settings: AppSettings) => void;
 }
 
 export default function AdminView({
   products,
   orders,
   coupons,
+  settings,
   onAddProduct,
   onUpdateProduct,
   onUpdateOrderStatus,
   onDeleteProduct,
   onAddCoupon,
-  onToggleCoupon
+  onToggleCoupon,
+  onUpdateSettings
 }: AdminViewProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'products' | 'coupons' | 'settings'>('overview');
 
@@ -61,6 +65,12 @@ export default function AdminView({
   const [newCouponCode, setNewCouponCode] = useState('');
   const [newCouponType, setNewCouponType] = useState<'percentage' | 'fixed'>('percentage');
   const [newCouponVal, setNewCouponVal] = useState('');
+
+  // --- Settings Form States ---
+  const [settingsWhatsapp, setSettingsWhatsapp] = useState(settings.whatsapp);
+  const [settingsCepOrigem, setSettingsCepOrigem] = useState(settings.cepOrigem);
+  const [settingsMinFrete, setSettingsMinFrete] = useState(settings.minFreteGratis.toString());
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // --- Calculations for metrics ---
   const totalRevenue = orders
@@ -201,6 +211,22 @@ export default function AdminView({
     setNewCouponCode('');
     setNewCouponVal('');
     setShowCouponForm(false);
+  };
+
+  const handleSettingsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!settingsWhatsapp || !settingsCepOrigem || !settingsMinFrete) return;
+
+    onUpdateSettings({
+      whatsapp: settingsWhatsapp.trim(),
+      cepOrigem: settingsCepOrigem.trim(),
+      minFreteGratis: parseFloat(settingsMinFrete) || 0
+    });
+
+    setSaveSuccess(true);
+    setTimeout(() => {
+      setSaveSuccess(false);
+    }, 3000);
   };
 
   return (
@@ -851,33 +877,51 @@ export default function AdminView({
         >
           <h2 className="text-xs uppercase tracking-widest text-[#DFBA6B] font-bold">Configurações Gerais de Vendas</h2>
 
-          <GlassCard className="p-6 flex flex-col gap-4">
-            <h3 className="font-serif text-sm text-white font-medium uppercase tracking-wider">Metadados da Infraestrutura</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed font-light">
-              Esses dados regulam as conexões de WhatsApp e o CEP de envio base dos envios da Bodin Jóias.
-            </p>
+          <GlassCard className="p-6">
+            <form onSubmit={handleSettingsSubmit} className="flex flex-col gap-4">
+              <h3 className="font-serif text-sm text-white font-medium uppercase tracking-wider">Metadados da Infraestrutura</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed font-light">
+                Esses dados regulam as conexões de WhatsApp e o CEP de envio base dos envios da Bodin Jóias.
+              </p>
 
-            <div className="flex flex-col gap-4 mt-2">
-              <GlassInput
-                label="WhatsApp Central de Atendimento"
-                defaultValue="5511999999999"
-                placeholder="Ex: 5511999999999"
-              />
-              <GlassInput
-                label="CEP Base de Origem"
-                defaultValue="04571-010"
-                placeholder="Ex: 04571-010"
-              />
-              <GlassInput
-                label="Valor Mínimo para Frete Grátis (R$)"
-                defaultValue="250.00"
-                placeholder="250.00"
-              />
-            </div>
+              <div className="flex flex-col gap-4 mt-2">
+                <GlassInput
+                  label="WhatsApp Central de Atendimento"
+                  value={settingsWhatsapp}
+                  onChange={(e) => setSettingsWhatsapp(e.target.value)}
+                  placeholder="Ex: 5511999999999"
+                />
+                <GlassInput
+                  label="CEP Base de Origem"
+                  value={settingsCepOrigem}
+                  onChange={(e) => setSettingsCepOrigem(e.target.value)}
+                  placeholder="Ex: 04571-010"
+                />
+                <GlassInput
+                  label="Valor Mínimo para Frete Grátis (R$)"
+                  type="number"
+                  step="0.01"
+                  value={settingsMinFrete}
+                  onChange={(e) => setSettingsMinFrete(e.target.value)}
+                  placeholder="250.00"
+                />
+              </div>
 
-            <PremiumButton variant="solid" className="py-2.5 text-xs self-start mt-2">
-              <span>Salvar Configurações</span>
-            </PremiumButton>
+              {saveSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 bg-emerald-950/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-semibold flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Configurações atualizadas com sucesso!</span>
+                </motion.div>
+              )}
+
+              <PremiumButton type="submit" variant="solid" className="py-2.5 text-xs self-start mt-2">
+                <span>Salvar Configurações</span>
+              </PremiumButton>
+            </form>
           </GlassCard>
         </motion.div>
       )}

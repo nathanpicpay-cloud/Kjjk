@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, ArrowLeft, CreditCard, Landmark, Check, ShoppingBag, ArrowRight, MessageCircle, Copy, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CartItem, Order } from '../types';
+import { CartItem, Order, AppSettings } from '../types';
 import { GlassCard, PremiumButton, GlassInput } from './DesignSystem';
 
 interface CheckoutViewProps {
@@ -11,6 +11,7 @@ interface CheckoutViewProps {
   shipping: number;
   total: number;
   couponCode?: string;
+  settings: AppSettings;
   onOrderCompleted: (order: Order) => void;
   onBackToCart: () => void;
   onBackToHome: () => void;
@@ -23,6 +24,7 @@ export default function CheckoutView({
   shipping,
   total,
   couponCode,
+  settings,
   onOrderCompleted,
   onBackToCart,
   onBackToHome
@@ -110,7 +112,7 @@ export default function CheckoutView({
 
   const handleWhatsAppReceipt = () => {
     const text = `Olá Bodin Jóias! Acabei de realizar o pedido *${generatedOrderId}* no valor de R$ ${total.toFixed(2).replace('.', ',')}. Segue o comprovante para liberação de envio. Obrigado!`;
-    window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return (
