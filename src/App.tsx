@@ -21,20 +21,31 @@ import { GlobalKeyframes, GlassCard, PremiumButton, GlassInput, Badge } from './
 export default function App() {
   // --- Persistent Local States (Acting like an integrated Supabase replica db) ---
   const [currentView, _setCurrentView] = useState<ViewState>(() => {
-    const path = window.location.pathname;
-    if (path === '/admin') return 'admin';
-    if (path === '/cart') return 'cart';
-    if (path === '/checkout') return 'checkout';
-    if (path === '/catalog') return 'catalog';
-    if (path === '/product_details') return 'product_details';
+    const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
+    const hash = window.location.hash.toLowerCase();
+    
+    if (path === '/admin' || hash === '#/admin' || hash === '#admin') return 'admin';
+    if (path === '/cart' || hash === '#/cart' || hash === '#cart') return 'cart';
+    if (path === '/checkout' || hash === '#/checkout' || hash === '#checkout') return 'checkout';
+    if (path === '/catalog' || hash === '#/catalog' || hash === '#catalog') return 'catalog';
+    if (path === '/product_details' || hash === '#/product_details' || hash === '#product_details') return 'product_details';
     return 'home';
   });
 
   const setCurrentView = (view: ViewState) => {
     _setCurrentView(view);
     const path = view === 'home' ? '/' : `/${view}`;
+    const hash = view === 'home' ? '' : `#/${view}`;
+    
     if (window.location.pathname !== path) {
       window.history.pushState({ view }, '', path);
+    }
+    
+    // Also update Hash to support both routing methods seamlessly (especially useful on static hosts like Vercel)
+    if (view !== 'home' && window.location.hash !== hash) {
+      window.location.hash = hash;
+    } else if (view === 'home' && window.location.hash) {
+      window.history.pushState({ view }, '', '/');
     }
   };
 
@@ -125,27 +136,33 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentView]);
 
-  // Synchronize view state with browser routing (popstate)
+  // Synchronize view state with browser routing (popstate and hashchange)
   useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path === '/admin') {
+    const handleRoutingChange = () => {
+      const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
+      const hash = window.location.hash.toLowerCase();
+      
+      if (path === '/admin' || hash === '#/admin' || hash === '#admin') {
         _setCurrentView('admin');
-      } else if (path === '/cart') {
+      } else if (path === '/cart' || hash === '#/cart' || hash === '#cart') {
         _setCurrentView('cart');
-      } else if (path === '/checkout') {
+      } else if (path === '/checkout' || hash === '#/checkout' || hash === '#checkout') {
         _setCurrentView('checkout');
-      } else if (path === '/catalog') {
+      } else if (path === '/catalog' || hash === '#/catalog' || hash === '#catalog') {
         _setCurrentView('catalog');
-      } else if (path === '/product_details') {
+      } else if (path === '/product_details' || hash === '#/product_details' || hash === '#product_details') {
         _setCurrentView('product_details');
       } else {
         _setCurrentView('home');
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleRoutingChange);
+    window.addEventListener('hashchange', handleRoutingChange);
+    return () => {
+      window.removeEventListener('popstate', handleRoutingChange);
+      window.removeEventListener('hashchange', handleRoutingChange);
+    };
   }, []);
 
   // --- Operations / Mutations ---
