@@ -24,7 +24,7 @@ export default function App() {
     const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
     const hash = window.location.hash.toLowerCase();
     
-    if (path === '/admin' || hash === '#/admin' || hash === '#admin') return 'admin';
+    if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) return 'admin';
     if (path === '/cart' || hash === '#/cart' || hash === '#cart') return 'cart';
     if (path === '/checkout' || hash === '#/checkout' || hash === '#checkout') return 'checkout';
     if (path === '/catalog' || hash === '#/catalog' || hash === '#catalog') return 'catalog';
@@ -142,7 +142,7 @@ export default function App() {
       const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
       const hash = window.location.hash.toLowerCase();
       
-      if (path === '/admin' || hash === '#/admin' || hash === '#admin') {
+      if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) {
         _setCurrentView('admin');
       } else if (path === '/cart' || hash === '#/cart' || hash === '#cart') {
         _setCurrentView('cart');
