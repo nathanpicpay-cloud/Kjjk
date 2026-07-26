@@ -27,6 +27,14 @@ export interface Product {
   stock: number;
   isBestSeller: boolean;
   isNew: boolean;
+  isFeatured?: boolean;
+  isActive?: boolean;
+  videoUrl?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  displayOrder?: number;
+  technicalSpecs?: string;
 }
 
 export interface CartItem {
@@ -80,5 +88,34 @@ export interface AppSettings {
   whatsapp: string;
   cepOrigem: string;
   minFreteGratis: number;
+  companyName?: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  instagramUrl?: string;
+  address?: string;
+  operationHours?: string;
+  primaryColor?: string;
+  globalSeoTitle?: string;
+  globalSeoDescription?: string;
+  globalSeoKeywords?: string;
+  termsOfUse?: string;
+  privacyPolicy?: string;
+  refundPolicy?: string;
+  // Homepage Configurations
+  homepageBanners?: {
+    id: string;
+    image: string;
+    title: string;
+    subtitle: string;
+    tag?: string;
+    linkView?: string;
+    active: boolean;
+  }[];
+  homepageSections?: {
+    id: string;
+    name: string;
+    active: boolean;
+    order: number;
+  }[];
 }
 

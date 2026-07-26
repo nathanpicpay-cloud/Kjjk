@@ -19,8 +19,7 @@ export default function Navbar({
 }: NavbarProps) {
   const navItems = [
     { view: 'home' as ViewState, label: 'Início' },
-    { view: 'catalog' as ViewState, label: 'Catálogo' },
-    { view: 'admin' as ViewState, label: 'Dashboard', icon: LayoutDashboard }
+    { view: 'catalog' as ViewState, label: 'Catálogo' }
   ];
 
   return (

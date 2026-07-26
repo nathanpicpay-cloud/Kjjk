@@ -140,9 +140,10 @@ GlassInput.displayName = 'GlassInput';
 interface BadgeProps {
   children: React.ReactNode;
   variant?: 'gold' | 'new' | 'discount' | 'neutral';
+  className?: string;
 }
 
-export const Badge = ({ children, variant = 'gold' }: BadgeProps) => {
+export const Badge = ({ children, variant = 'gold', className = '' }: BadgeProps) => {
   const styles = {
     gold: 'bg-gradient-to-r from-[#DFBA6B]/10 to-[#AA7C11]/10 border border-[#DFBA6B]/30 text-[#DFBA6B]',
     new: 'bg-emerald-950/20 border border-emerald-500/20 text-emerald-400',
@@ -151,7 +152,7 @@ export const Badge = ({ children, variant = 'gold' }: BadgeProps) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase ${styles[variant]} whitespace-nowrap select-none`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold tracking-wider uppercase ${styles[variant]} whitespace-nowrap select-none ${className}`}>
       {children}
     </span>
   );

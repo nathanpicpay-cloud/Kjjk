@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Star, Heart, MessageCircle, ShoppingBag, ShieldCheck, Check, Info } from 'lucide-react';
+import { ArrowLeft, Star, Heart, MessageCircle, ShoppingBag, ShieldCheck, Check, Info, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Product, CartItem, Review } from '../types';
 import { GlassCard, PremiumButton, Badge } from './DesignSystem';
@@ -32,6 +32,13 @@ export default function ProductDetailsView({
   const [selectedClasp, setSelectedClasp] = useState<string>(product.clasp[0] || 'Gaveta');
   const [reviewFilter, setReviewFilter] = useState<number>(0); // 0 = all
   const [addedToCartToast, setAddedToCartToast] = useState<boolean>(false);
+
+  // Professional interactive magnifying zoom states
+  const [zoomCoords, setZoomCoords] = useState({ x: 50, y: 50 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFullscreenGallery, setIsFullscreenGallery] = useState(false);
+  const [fullscreenImageIdx, setFullscreenImageIdx] = useState(0);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   // New review form states
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -151,17 +158,41 @@ export default function ProductDetailsView({
         <div className="lg:col-span-6 flex flex-col gap-4">
           {/* Main Display Image */}
           <GlassCard className="p-2 aspect-square max-h-[500px] flex items-center justify-center overflow-hidden rounded-2xl relative">
-            <img
-              src={selectedImage}
-              alt={product.name}
-              referrerPolicy="no-referrer"
-              className="w-full h-full object-cover rounded-xl transition-transform duration-500 hover:scale-110"
-            />
+            <div
+              onMouseMove={(e) => {
+                const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+                const x = ((e.clientX - left) / width) * 100;
+                const y = ((e.clientY - top) / height) * 100;
+                setZoomCoords({ x, y });
+              }}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => {
+                setIsHovered(false);
+                setZoomCoords({ x: 50, y: 50 });
+              }}
+              onClick={() => {
+                const idx = imagesList.indexOf(selectedImage);
+                setFullscreenImageIdx(idx >= 0 ? idx : 0);
+                setIsFullscreenGallery(true);
+              }}
+              className="w-full h-full relative cursor-zoom-in overflow-hidden rounded-xl"
+            >
+              <img
+                src={selectedImage}
+                alt={product.name}
+                referrerPolicy="no-referrer"
+                style={{
+                  transformOrigin: `${zoomCoords.x}% ${zoomCoords.y}%`,
+                  transform: isHovered ? 'scale(2)' : 'scale(1)'
+                }}
+                className="w-full h-full object-cover transition-transform duration-200 ease-out"
+              />
+            </div>
             
             {/* Ambient luxury glint */}
-            <div className="absolute top-4 left-4">
+            <div className="absolute top-4 left-4 pointer-events-none">
               <Badge variant="gold">
-                Banho Ouro 18K
+                Toque para Zoom
               </Badge>
             </div>
           </GlassCard>
@@ -551,6 +582,109 @@ export default function ProductDetailsView({
           </div>
         </div>
       )}
+
+      {/* Fullscreen Gallery Modal */}
+      <AnimatePresence>
+        {isFullscreenGallery && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-between py-6 px-4"
+          >
+            {/* Top Bar controls */}
+            <div className="w-full max-w-5xl flex items-center justify-between text-white/60">
+              <span className="text-[10px] tracking-widest uppercase font-medium">
+                Joia Bodin — {fullscreenImageIdx + 1} de {imagesList.length}
+              </span>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setZoomLevel(zoomLevel === 1 ? 2.5 : 1)}
+                  className="p-2 rounded-full hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                  title="Zoom"
+                >
+                  <Search className="w-5 h-5 text-[#DFBA6B]" />
+                </button>
+                <button
+                  onClick={() => {
+                    setIsFullscreenGallery(false);
+                    setZoomLevel(1);
+                  }}
+                  className="p-2 rounded-full hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-xl font-light"
+                  title="Fechar"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Main Image Slider with Left/Right Actions */}
+            <div className="relative w-full max-w-3xl flex-1 flex items-center justify-center overflow-hidden">
+              {/* Left Arrow */}
+              {imagesList.length > 1 && (
+                <button
+                  onClick={() => {
+                    setFullscreenImageIdx((prev) => (prev === 0 ? imagesList.length - 1 : prev - 1));
+                    setZoomLevel(1);
+                  }}
+                  className="absolute left-2 z-10 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-all cursor-pointer border border-white/5 text-sm"
+                >
+                  ◀
+                </button>
+              )}
+
+              {/* Main Image */}
+              <div className="w-full h-full max-h-[70vh] flex items-center justify-center overflow-auto">
+                <motion.img
+                  key={fullscreenImageIdx}
+                  src={imagesList[fullscreenImageIdx]}
+                  alt={product.name}
+                  referrerPolicy="no-referrer"
+                  style={{
+                    transform: `scale(${zoomLevel})`,
+                    cursor: zoomLevel > 1 ? 'zoom-out' : 'zoom-in',
+                  }}
+                  onClick={() => setZoomLevel(zoomLevel === 1 ? 2.5 : 1)}
+                  className="max-w-full max-h-full object-contain transition-transform duration-300"
+                />
+              </div>
+
+              {/* Right Arrow */}
+              {imagesList.length > 1 && (
+                <button
+                  onClick={() => {
+                    setFullscreenImageIdx((prev) => (prev === imagesList.length - 1 ? 0 : prev + 1));
+                    setZoomLevel(1);
+                  }}
+                  className="absolute right-2 z-10 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-all cursor-pointer border border-white/5 text-sm"
+                >
+                  ▶
+                </button>
+              )}
+            </div>
+
+            {/* Bottom Thumbnails */}
+            <div className="flex gap-2 justify-center py-2 overflow-x-auto w-full max-w-lg">
+              {imagesList.map((img, idx) => (
+                <button
+                  key={img}
+                  onClick={() => {
+                    setFullscreenImageIdx(idx);
+                    setZoomLevel(1);
+                  }}
+                  className={`w-12 h-12 rounded-lg overflow-hidden border transition-all duration-300 ${
+                    fullscreenImageIdx === idx
+                      ? 'border-[#DFBA6B] ring-1 ring-[#DFBA6B]/30 scale-105'
+                      : 'border-white/5 opacity-50 hover:opacity-100'
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

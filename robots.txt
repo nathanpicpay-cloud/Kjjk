@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /painel-privado-bodin-joias
+Disallow: /painel-privado-bodin-joias/*
+Disallow: /admin
+Disallow: /admin/*
+
+Sitemap: https://bodinjoias.vercel.app/sitemap.xml

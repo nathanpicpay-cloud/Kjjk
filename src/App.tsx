@@ -24,7 +24,14 @@ export default function App() {
     const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
     const hash = window.location.hash.toLowerCase();
     
-    if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) return 'admin';
+    if (path === '/painel-privado-bodin-joias' || path.startsWith('/painel-privado-bodin-joias/') || hash === '#/painel-privado-bodin-joias' || hash === '#painel-privado-bodin-joias' || hash.startsWith('#/painel-privado-bodin-joias/') || hash.startsWith('#painel-privado-bodin-joias/')) {
+      return 'admin';
+    }
+    if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) {
+      // Quietly clean up the url to protect admin discovery
+      window.history.replaceState({}, '', '/');
+      return 'home';
+    }
     if (path === '/cart' || hash === '#/cart' || hash === '#cart') return 'cart';
     if (path === '/checkout' || hash === '#/checkout' || hash === '#checkout') return 'checkout';
     if (path === '/catalog' || hash === '#/catalog' || hash === '#catalog') return 'catalog';
@@ -34,8 +41,9 @@ export default function App() {
 
   const setCurrentView = (view: ViewState) => {
     _setCurrentView(view);
-    const path = view === 'home' ? '/' : `/${view}`;
-    const hash = view === 'home' ? '' : `#/${view}`;
+    const mappedPath = view === 'admin' ? 'painel-privado-bodin-joias' : view;
+    const path = view === 'home' ? '/' : `/${mappedPath}`;
+    const hash = view === 'home' ? '' : `#/${mappedPath}`;
     
     if (window.location.pathname !== path) {
       window.history.pushState({ view }, '', path);
@@ -105,6 +113,14 @@ export default function App() {
   const [sortOption, setSortOption] = useState<'default' | 'price_asc' | 'price_desc' | 'popular'>('default');
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Simulated premium high-speed loading shimmer effect on filters or route navigation
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 450);
+    return () => clearTimeout(timer);
+  }, [categoryFilter, sizeFilter, sortOption, showOnlyFavorites, currentView]);
 
   // --- Synchronization effects with localStorage ---
   useEffect(() => {
@@ -136,14 +152,33 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentView]);
 
+  // Dynamic SEO Robots meta tag injection for admin security and preventing indexation
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute('name', 'robots');
+      document.head.appendChild(meta);
+    }
+    
+    if (currentView === 'admin') {
+      meta.setAttribute('content', 'noindex, nofollow');
+    } else {
+      meta.setAttribute('content', 'index, follow');
+    }
+  }, [currentView]);
+
   // Synchronize view state with browser routing (popstate and hashchange)
   useEffect(() => {
     const handleRoutingChange = () => {
       const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
       const hash = window.location.hash.toLowerCase();
       
-      if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) {
+      if (path === '/painel-privado-bodin-joias' || path.startsWith('/painel-privado-bodin-joias/') || hash === '#/painel-privado-bodin-joias' || hash === '#painel-privado-bodin-joias' || hash.startsWith('#/painel-privado-bodin-joias/') || hash.startsWith('#painel-privado-bodin-joias/')) {
         _setCurrentView('admin');
+      } else if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) {
+        window.history.replaceState({}, '', '/');
+        _setCurrentView('home');
       } else if (path === '/cart' || hash === '#/cart' || hash === '#cart') {
         _setCurrentView('cart');
       } else if (path === '/checkout' || hash === '#/checkout' || hash === '#checkout') {
@@ -336,8 +371,16 @@ export default function App() {
               transition={{ duration: 0.5 }}
             >
               <HeroBanner
-                onExplore={() => setCurrentView('catalog')}
+                onExplore={(targetView) => {
+                  setSelectedProduct(null);
+                  if (targetView === 'home' || targetView === 'catalog' || targetView === 'cart' || targetView === 'checkout' || targetView === 'admin') {
+                    setCurrentView(targetView);
+                  } else {
+                    setCurrentView('catalog');
+                  }
+                }}
                 whatsapp={settings.whatsapp}
+                banners={settings.homepageBanners}
               />
 
               {/* Section: Category highlights */}
@@ -688,8 +731,45 @@ export default function App() {
               </AnimatePresence>
 
               {/* Dynamic catalog listing grid */}
-              {sortedProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 justify-items-center">
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 justify-items-center w-full">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="rounded-xl bg-white/[0.02] border border-white/5 p-5 flex flex-col gap-4 w-full max-w-[340px] sm:max-w-none">
+                      <div className="relative aspect-square w-full rounded-xl bg-zinc-900/50 border border-zinc-800/40 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="relative h-3 w-1/3 rounded bg-zinc-900/50 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                        </div>
+                        <div className="relative h-5 w-4/5 rounded bg-zinc-900/50 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                        </div>
+                        <div className="relative h-3.5 w-2/3 rounded bg-zinc-900/50 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-3 border-t border-white/5">
+                        <div className="flex flex-col gap-1 w-1/2">
+                          <div className="relative h-2.5 w-1/2 rounded bg-zinc-900/50 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                          </div>
+                          <div className="relative h-4.5 w-4/5 rounded bg-zinc-900/50 overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                          </div>
+                        </div>
+                        <div className="relative h-3.5 w-1/3 rounded bg-zinc-900/50 overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                        </div>
+                      </div>
+                      <div className="relative h-10 w-full rounded bg-zinc-900/50 overflow-hidden mt-1">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : sortedProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 justify-items-center w-full">
                   {sortedProducts.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -823,6 +903,7 @@ export default function App() {
                     setIsAdminAuthenticated(false);
                     sessionStorage.removeItem('bodin_admin_auth');
                   }}
+                  onReorderProducts={setProducts}
                 />
               ) : (
                 <AdminLogin
@@ -904,9 +985,21 @@ export default function App() {
               </span>
             </div>
 
-            <p className="text-[9px] text-zinc-600 font-light leading-relaxed mt-1">
-              Bodin Jóias LTDA © 2026. Todos os direitos reservados. CNPJ: 00.000.000/0001-00. Joias banhadas a Ouro 18K em Moeda Antiga.
-            </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2">
+              <p className="text-[9px] text-zinc-600 font-light leading-relaxed">
+                Bodin Jóias LTDA © 2026. Todos os direitos reservados. CNPJ: 00.000.000/0001-00. Joias banhadas a Ouro 18K em Moeda Antiga.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedProduct(null);
+                  setCurrentView('admin');
+                }}
+                className="text-[9px] text-zinc-800 hover:text-zinc-600 font-light tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer select-none bg-transparent border-none p-0 outline-none"
+              >
+                <Lock className="w-2.5 h-2.5 opacity-40" />
+                <span>Área Restrita</span>
+              </button>
+            </div>
           </div>
         </div>
       </footer>

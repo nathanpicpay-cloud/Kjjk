@@ -13,8 +13,7 @@ export default function BottomNav({ currentView, onNavigate, cartCount }: Bottom
   const tabs = [
     { view: 'home' as ViewState, label: 'Início', icon: Home },
     { view: 'catalog' as ViewState, label: 'Catálogo', icon: Gem },
-    { view: 'cart' as ViewState, label: 'Sacola', icon: ShoppingBag, badge: cartCount },
-    { view: 'admin' as ViewState, label: 'Painel', icon: LayoutDashboard }
+    { view: 'cart' as ViewState, label: 'Sacola', icon: ShoppingBag, badge: cartCount }
   ];
 
   return (

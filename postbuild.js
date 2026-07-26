@@ -6,13 +6,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const routes = [
-  'admin',
-  'admin/produtos',
-  'admin/pedidos',
-  'admin/categorias',
-  'admin/clientes',
-  'admin/configuracoes',
-  'admin/cupons',
+  'painel-privado-bodin-joias',
+  'painel-privado-bodin-joias/produtos',
+  'painel-privado-bodin-joias/pedidos',
+  'painel-privado-bodin-joias/categorias',
+  'painel-privado-bodin-joias/clientes',
+  'painel-privado-bodin-joias/configuracoes',
+  'painel-privado-bodin-joias/cupons',
   'cart',
   'checkout',
   'catalog',
