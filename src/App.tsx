@@ -24,12 +24,24 @@ export default function App() {
     const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
     const hash = window.location.hash.toLowerCase();
     
+    const isAuthed = sessionStorage.getItem('bodin_admin_auth') === 'true';
+    const isAllowedLogin = sessionStorage.getItem('bodin_allowed_login_access') === 'true';
+
     if (path === '/painel-privado-bodin-joias' || path.startsWith('/painel-privado-bodin-joias/') || hash === '#/painel-privado-bodin-joias' || hash === '#painel-privado-bodin-joias' || hash.startsWith('#/painel-privado-bodin-joias/') || hash.startsWith('#painel-privado-bodin-joias/')) {
-      return 'admin';
+      if (isAuthed || isAllowedLogin) {
+        return 'admin';
+      } else {
+        if (typeof window !== 'undefined') {
+          window.history.replaceState({}, '', '/');
+        }
+        return 'home';
+      }
     }
     if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) {
       // Quietly clean up the url to protect admin discovery
-      window.history.replaceState({}, '', '/');
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/');
+      }
       return 'home';
     }
     if (path === '/cart' || hash === '#/cart' || hash === '#cart') return 'cart';
@@ -174,8 +186,16 @@ export default function App() {
       const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
       const hash = window.location.hash.toLowerCase();
       
+      const isAuthed = sessionStorage.getItem('bodin_admin_auth') === 'true';
+      const isAllowedLogin = sessionStorage.getItem('bodin_allowed_login_access') === 'true';
+
       if (path === '/painel-privado-bodin-joias' || path.startsWith('/painel-privado-bodin-joias/') || hash === '#/painel-privado-bodin-joias' || hash === '#painel-privado-bodin-joias' || hash.startsWith('#/painel-privado-bodin-joias/') || hash.startsWith('#painel-privado-bodin-joias/')) {
-        _setCurrentView('admin');
+        if (isAuthed || isAllowedLogin) {
+          _setCurrentView('admin');
+        } else {
+          window.history.replaceState({}, '', '/');
+          _setCurrentView('home');
+        }
       } else if (path === '/admin' || path.startsWith('/admin/') || hash === '#/admin' || hash === '#admin' || hash.startsWith('#/admin/') || hash.startsWith('#admin/')) {
         window.history.replaceState({}, '', '/');
         _setCurrentView('home');
@@ -351,7 +371,15 @@ export default function App() {
       <Navbar
         currentView={currentView}
         onNavigate={(view) => {
-          setCurrentView(view);
+          if (view === 'favorites') {
+            setShowOnlyFavorites(true);
+            setCurrentView('catalog');
+          } else {
+            if (view === 'catalog') {
+              setShowOnlyFavorites(false);
+            }
+            setCurrentView(view);
+          }
           setSelectedProduct(null);
         }}
         cartCount={cart.reduce((acc, ci) => acc + ci.quantity, 0)}
@@ -902,6 +930,7 @@ export default function App() {
                   onLogout={() => {
                     setIsAdminAuthenticated(false);
                     sessionStorage.removeItem('bodin_admin_auth');
+                    sessionStorage.removeItem('bodin_allowed_login_access');
                   }}
                   onReorderProducts={setProducts}
                 />
@@ -912,6 +941,7 @@ export default function App() {
                     sessionStorage.setItem('bodin_admin_auth', 'true');
                   }}
                   onCancel={() => {
+                    sessionStorage.removeItem('bodin_allowed_login_access');
                     setCurrentView('home');
                   }}
                 />
@@ -924,8 +954,17 @@ export default function App() {
       {/* iOS Translucent Bottom Tab Bar for Mobile layout */}
       <BottomNav
         currentView={currentView}
+        showOnlyFavorites={showOnlyFavorites}
         onNavigate={(view) => {
-          setCurrentView(view);
+          if (view === 'favorites') {
+            setShowOnlyFavorites(true);
+            setCurrentView('catalog');
+          } else {
+            if (view === 'catalog') {
+              setShowOnlyFavorites(false);
+            }
+            setCurrentView(view);
+          }
           setSelectedProduct(null);
         }}
         cartCount={cart.reduce((acc, ci) => acc + ci.quantity, 0)}
@@ -934,7 +973,7 @@ export default function App() {
       {/* Premium Luxury Footer signature for the Bodin brand */}
       <footer className="border-t border-white/5 bg-black py-12 px-4 md:px-8 text-xs font-sans">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 text-left">
-          {/* Sign board column 1 */}
+          {/* Informações da loja Column */}
           <div className="md:col-span-4 flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <Logo size="sm" showSub={false} />
@@ -953,54 +992,77 @@ export default function App() {
             </p>
           </div>
 
-          {/* Nav board columns 2 */}
-          <div className="md:col-span-4 grid grid-cols-2 gap-6">
-            <div className="flex flex-col gap-3">
-              <h4 className="text-[10px] uppercase tracking-widest font-semibold text-[#DFBA6B]">Joalheria</h4>
-              <button onClick={() => { setCurrentView('home'); setSelectedProduct(null); }} className="text-zinc-500 hover:text-[#F9E4B7] text-left transition-colors">Página Inicial</button>
-              <button onClick={() => { setCurrentView('catalog'); setSelectedProduct(null); }} className="text-zinc-500 hover:text-[#F9E4B7] text-left transition-colors">Catálogo de Joias</button>
-              <button onClick={() => setCurrentView('cart')} className="text-zinc-500 hover:text-[#F9E4B7] text-left transition-colors">Sacola</button>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <h4 className="text-[10px] uppercase tracking-widest font-semibold text-[#DFBA6B]">Políticas</h4>
-              <span className="text-zinc-500 cursor-help">Garantia Eterna</span>
-              <span className="text-zinc-500 cursor-help">Política de Limpeza</span>
-              <span className="text-zinc-500 cursor-help">Segurança Certificada</span>
-            </div>
-          </div>
-
-          {/* Security stamp board column 3 */}
+          {/* Contato & Redes sociais Column */}
           <div className="md:col-span-4 flex flex-col gap-4">
-            <h4 className="text-[10px] uppercase tracking-widest font-semibold text-[#DFBA6B]">Pagamento Certificado</h4>
-            
-            <div className="flex flex-wrap gap-2 text-zinc-600 text-[10px]">
-              <span className="px-3 py-1.5 rounded-lg border border-zinc-900 bg-zinc-950 flex items-center gap-1">
+            <h4 className="text-[10px] uppercase tracking-widest font-semibold text-[#DFBA6B]">Atendimento & Redes</h4>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleWhatsAppGeneral}
+                className="text-zinc-500 hover:text-[#F9E4B7] text-left flex items-center gap-2 transition-colors cursor-pointer bg-transparent border-none p-0 outline-none"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-500" />
+                <span>WhatsApp VIP</span>
+              </button>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-500 hover:text-[#F9E4B7] flex items-center gap-2 transition-colors"
+              >
+                <Instagram className="w-4 h-4 text-pink-500" />
+                <span>Instagram Oficial</span>
+              </a>
+            </div>
+
+            <div className="flex flex-wrap gap-2 text-zinc-600 text-[10px] mt-2">
+              <span className="px-3 py-1.5 rounded-lg border border-zinc-900 bg-zinc-950 flex items-center gap-1 select-none">
                 <Lock className="w-3.5 h-3.5 text-emerald-500" />
                 <span>Pix Seguro</span>
               </span>
-              <span className="px-3 py-1.5 rounded-lg border border-zinc-900 bg-zinc-950 flex items-center gap-1">
+              <span className="px-3 py-1.5 rounded-lg border border-zinc-900 bg-zinc-950 flex items-center gap-1 select-none">
                 <CreditCard className="w-3.5 h-3.5 text-[#DFBA6B]" />
                 <span>SSL Criptografado</span>
               </span>
             </div>
+          </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2">
-              <p className="text-[9px] text-zinc-600 font-light leading-relaxed">
-                Bodin Jóias LTDA © 2026. Todos os direitos reservados. CNPJ: 00.000.000/0001-00. Joias banhadas a Ouro 18K em Moeda Antiga.
-              </p>
-              <button
-                onClick={() => {
-                  setSelectedProduct(null);
-                  setCurrentView('admin');
-                }}
-                className="text-[9px] text-zinc-800 hover:text-zinc-600 font-light tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer select-none bg-transparent border-none p-0 outline-none"
-              >
-                <Lock className="w-2.5 h-2.5 opacity-40" />
-                <span>Área Restrita</span>
-              </button>
+          {/* Políticas & Navegação Column */}
+          <div className="md:col-span-4 grid grid-cols-2 gap-6">
+            <div className="flex flex-col gap-3">
+              <h4 className="text-[10px] uppercase tracking-widest font-semibold text-[#DFBA6B]">Joalheria</h4>
+              <button onClick={() => { setCurrentView('home'); setSelectedProduct(null); }} className="text-zinc-500 hover:text-[#F9E4B7] text-left transition-colors cursor-pointer bg-transparent border-none p-0 outline-none">Página Inicial</button>
+              <button onClick={() => { setCurrentView('catalog'); setSelectedProduct(null); }} className="text-zinc-500 hover:text-[#F9E4B7] text-left transition-colors cursor-pointer bg-transparent border-none p-0 outline-none">Catálogo de Joias</button>
+              <button onClick={() => setCurrentView('cart')} className="text-zinc-500 hover:text-[#F9E4B7] text-left transition-colors cursor-pointer bg-transparent border-none p-0 outline-none">Sacola</button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <h4 className="text-[10px] uppercase tracking-widest font-semibold text-[#DFBA6B]">Políticas</h4>
+              <span className="text-zinc-500 cursor-help select-none">Garantia Eterna</span>
+              <span className="text-zinc-500 cursor-help select-none">Política de Limpeza</span>
+              <span className="text-zinc-500 cursor-help select-none">Segurança Certificada</span>
             </div>
           </div>
+        </div>
+
+        {/* Separator */}
+        <div className="border-t border-white/5 my-8 max-w-7xl mx-auto" />
+
+        {/* Copyright & Last element footer button */}
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-4 text-center">
+          <p className="text-[9px] text-zinc-600 font-light leading-relaxed max-w-2xl">
+            Bodin Jóias LTDA © 2026. Todos os direitos reservados. CNPJ: 00.000.000/0001-00. Joias banhadas a Ouro 18K em Moeda Antiga.
+          </p>
+          <button
+            onClick={() => {
+              sessionStorage.setItem('bodin_allowed_login_access', 'true');
+              setSelectedProduct(null);
+              setCurrentView('admin');
+            }}
+            className="text-[9px] text-zinc-800 hover:text-[#DFBA6B]/70 font-light tracking-widest flex items-center gap-1.5 opacity-50 hover:opacity-100 active:scale-95 transition-all duration-300 cursor-pointer select-none bg-transparent border-none p-0 outline-none mt-1"
+          >
+            <Lock className="w-2.5 h-2.5" />
+            <span className="uppercase">Área Restrita</span>
+          </button>
         </div>
       </footer>
     </div>

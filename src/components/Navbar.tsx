@@ -6,7 +6,7 @@ import { ViewState } from '../types';
 
 interface NavbarProps {
   currentView: ViewState;
-  onNavigate: (view: ViewState) => void;
+  onNavigate: (view: any) => void;
   cartCount: number;
   favoritesCount: number;
 }
@@ -75,7 +75,7 @@ export default function Navbar({
 
         {/* Favorites button */}
         <button
-          onClick={() => onNavigate('catalog')} // Navigate to catalog (which has a filters tab)
+          onClick={() => onNavigate('favorites')} // Navigate to catalog filtered by favorites
           className="relative p-2.5 text-[#A1A1A6] hover:text-[#DFBA6B] active:scale-90 transition-all rounded-full hover:bg-white/[0.05]"
           title="Ver Favoritos"
         >

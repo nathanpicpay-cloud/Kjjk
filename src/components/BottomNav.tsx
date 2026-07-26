@@ -1,18 +1,20 @@
 import React from 'react';
-import { Home, Gem, ShoppingBag, LayoutDashboard } from 'lucide-react';
+import { Home, Gem, ShoppingBag, Heart } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ViewState } from '../types';
 
 interface BottomNavProps {
   currentView: ViewState;
-  onNavigate: (view: ViewState) => void;
+  onNavigate: (view: any) => void;
   cartCount: number;
+  showOnlyFavorites?: boolean;
 }
 
-export default function BottomNav({ currentView, onNavigate, cartCount }: BottomNavProps) {
+export default function BottomNav({ currentView, onNavigate, cartCount, showOnlyFavorites = false }: BottomNavProps) {
   const tabs = [
     { view: 'home' as ViewState, label: 'Início', icon: Home },
     { view: 'catalog' as ViewState, label: 'Catálogo', icon: Gem },
+    { view: 'favorites', label: 'Favoritos', icon: Heart },
     { view: 'cart' as ViewState, label: 'Sacola', icon: ShoppingBag, badge: cartCount }
   ];
 
@@ -21,7 +23,12 @@ export default function BottomNav({ currentView, onNavigate, cartCount }: Bottom
       {/* Tab Container */}
       <nav className="pointer-events-auto mx-auto max-w-sm h-16 rounded-2xl bg-[#0F0F0F]/80 border border-[#D4AF37]/15 backdrop-blur-xl shadow-[0_10px_35px_rgba(0,0,0,0.8)] flex items-center justify-around px-2">
         {tabs.map((tab) => {
-          const isActive = currentView === tab.view || (tab.view === 'catalog' && currentView === 'product_details');
+          const isActive = tab.view === 'favorites'
+            ? (currentView === 'catalog' && showOnlyFavorites)
+            : (tab.view === 'catalog'
+                ? (currentView === 'catalog' && !showOnlyFavorites) || currentView === 'product_details'
+                : currentView === tab.view);
+
           const IconComponent = tab.icon;
 
           return (
