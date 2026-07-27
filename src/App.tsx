@@ -1047,22 +1047,35 @@ export default function App() {
         {/* Separator */}
         <div className="border-t border-white/5 my-8 max-w-7xl mx-auto" />
 
-        {/* Copyright & Last element footer button */}
-        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-4 text-center">
+        {/* Copyright & Secret Discrete Footer trigger points for Admin Panel */}
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center gap-2 text-center select-none">
           <p className="text-[9px] text-zinc-600 font-light leading-relaxed max-w-2xl">
-            Bodin Jóias LTDA © 2026. Todos os direitos reservados. CNPJ: 00.000.000/0001-00. Joias banhadas a Ouro 18K em Moeda Antiga.
+            Bodin Jóias LTDA <button 
+              onClick={() => {
+                sessionStorage.setItem('bodin_allowed_login_access', 'true');
+                setSelectedProduct(null);
+                setCurrentView('admin');
+              }}
+              className="text-zinc-600 hover:text-[#DFBA6B] transition-colors bg-transparent border-none p-0 outline-none cursor-pointer inline font-light"
+            >©</button> 2026. Todos os direitos reservados. CNPJ: 00.000.000/0001-00. Joias banhadas a Ouro 18K em Moeda Antiga<button 
+              onClick={() => {
+                sessionStorage.setItem('bodin_allowed_login_access', 'true');
+                setSelectedProduct(null);
+                setCurrentView('admin');
+              }}
+              className="text-zinc-600 hover:text-[#DFBA6B] transition-colors bg-transparent border-none p-0 outline-none cursor-pointer inline font-light"
+            >.</button>
           </p>
+          {/* Secret tiny luxury gold bullet button ornament */}
           <button
             onClick={() => {
               sessionStorage.setItem('bodin_allowed_login_access', 'true');
               setSelectedProduct(null);
               setCurrentView('admin');
             }}
-            className="text-[9px] text-zinc-800 hover:text-[#DFBA6B]/70 font-light tracking-widest flex items-center gap-1.5 opacity-50 hover:opacity-100 active:scale-95 transition-all duration-300 cursor-pointer select-none bg-transparent border-none p-0 outline-none mt-1"
-          >
-            <Lock className="w-2.5 h-2.5" />
-            <span className="uppercase">Área Restrita</span>
-          </button>
+            className="w-1.5 h-1.5 rounded-full bg-[#DFBA6B]/20 hover:bg-[#DFBA6B] transition-all duration-300 cursor-pointer outline-none mt-2 mx-auto"
+            title="Acesso Privado"
+          />
         </div>
       </footer>
     </div>
