@@ -4,6 +4,18 @@ import { Instagram, MessageCircle, ShieldCheck, Sparkles, Lock, CreditCard, Arro
 
 import { Product, CartItem, Order, Coupon, ViewState, AppSettings } from './types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_COUPONS, SYSTEM_BENEFITS } from './data';
+import { 
+  getProductsFromDb, 
+  saveProductToDb, 
+  deleteProductFromDb, 
+  getSettingsFromDb, 
+  saveSettingsToDb, 
+  getCouponsFromDb, 
+  saveCouponToDb, 
+  deleteCouponFromDb, 
+  getOrdersFromDb, 
+  saveOrderToDb 
+} from './firebase';
 
 // Import Custom Crafted Components
 import Logo from './components/Logo';
@@ -126,6 +138,30 @@ export default function App() {
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDbLoaded, setIsDbLoaded] = useState(false);
+
+  // Load everything from Firestore on Mount
+  useEffect(() => {
+    const loadFirebaseData = async () => {
+      try {
+        const [dbProducts, dbCoupons, dbOrders, dbSettings] = await Promise.all([
+          getProductsFromDb(),
+          getCouponsFromDb(),
+          getOrdersFromDb(),
+          getSettingsFromDb()
+        ]);
+        setProducts(dbProducts);
+        setCoupons(dbCoupons);
+        setOrders(dbOrders);
+        setSettings(dbSettings);
+        setIsDbLoaded(true);
+      } catch (error) {
+        console.error('Error loading Firestore collections, continuing with local storage:', error);
+        setIsDbLoaded(true);
+      }
+    };
+    loadFirebaseData();
+  }, []);
 
   // Simulated premium high-speed loading shimmer effect on filters or route navigation
   useEffect(() => {
@@ -157,7 +193,10 @@ export default function App() {
 
   useEffect(() => {
     localStorage.setItem('bodin_settings', JSON.stringify(settings));
-  }, [settings]);
+    if (isDbLoaded) {
+      saveSettingsToDb(settings);
+    }
+  }, [settings, isDbLoaded]);
 
   // Scroll to top on view change
   useEffect(() => {
@@ -291,37 +330,52 @@ export default function App() {
   const handleOrderCompleted = (completedOrder: Order) => {
     setOrders((prev) => [completedOrder, ...prev]);
     setCart([]); // Reset Cart
+    saveOrderToDb(completedOrder);
   };
 
   // --- Administrative Backoffice Handlers ---
   const handleAdminAddProduct = (newProduct: Product) => {
     setProducts((prev) => [newProduct, ...prev]);
+    saveProductToDb(newProduct);
   };
 
   const handleAdminUpdateProduct = (updatedProduct: Product) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
+    saveProductToDb(updatedProduct);
   };
 
   const handleAdminDeleteProduct = (productId: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
+    deleteProductFromDb(productId);
   };
 
   const handleAdminUpdateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status } : o))
-    );
+    setOrders((prev) => {
+      const updated = prev.map((o) => (o.id === orderId ? { ...o, status } : o));
+      const modifiedOrder = updated.find((o) => o.id === orderId);
+      if (modifiedOrder) {
+        saveOrderToDb(modifiedOrder);
+      }
+      return updated;
+    });
   };
 
   const handleAdminAddCoupon = (coupon: Coupon) => {
     setCoupons((prev) => [coupon, ...prev]);
+    saveCouponToDb(coupon);
   };
 
   const handleAdminToggleCoupon = (code: string) => {
-    setCoupons((prev) =>
-      prev.map((c) => (c.code === code ? { ...c, active: !c.active } : c))
-    );
+    setCoupons((prev) => {
+      const updated = prev.map((c) => (c.code === code ? { ...c, active: !c.active } : c));
+      const modifiedCoupon = updated.find((c) => c.code === code);
+      if (modifiedCoupon) {
+        saveCouponToDb(modifiedCoupon);
+      }
+      return updated;
+    });
   };
 
   const handleAdminUpdateSettings = (updatedSettings: AppSettings) => {

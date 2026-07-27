@@ -1,0 +1,66 @@
+{
+  "collections": {
+    "products": {
+      "description": "Store premium jewelry products",
+      "schema": {
+        "id": "string",
+        "name": "string",
+        "description": "string",
+        "price": "number",
+        "originalPrice": "number",
+        "category": "string",
+        "image": "string",
+        "secondaryImages": "array",
+        "weight": "string",
+        "length": "array",
+        "thickness": "string",
+        "clasp": "array",
+        "plating": "string",
+        "rating": "number",
+        "reviewsCount": "number",
+        "reviews": "array",
+        "stock": "number",
+        "isBestSeller": "boolean",
+        "isNew": "boolean",
+        "isFeatured": "boolean",
+        "isActive": "boolean"
+      }
+    },
+    "orders": {
+      "description": "Store customer orders",
+      "schema": {
+        "id": "string",
+        "customerName": "string",
+        "customerEmail": "string",
+        "customerPhone": "string",
+        "address": "object",
+        "items": "array",
+        "subtotal": "number",
+        "discount": "number",
+        "shipping": "number",
+        "total": "number",
+        "paymentMethod": "string",
+        "status": "string",
+        "date": "string"
+      }
+    },
+    "coupons": {
+      "description": "Store discount coupons",
+      "schema": {
+        "code": "string",
+        "discountType": "string",
+        "value": "number",
+        "active": "boolean"
+      }
+    },
+    "settings": {
+      "description": "Store global application settings and configuration",
+      "schema": {
+        "whatsapp": "string",
+        "cepOrigem": "string",
+        "minFreteGratis": "number",
+        "homepageBanners": "array"
+      }
+    }
+  }
+}
