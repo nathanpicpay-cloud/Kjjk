@@ -174,7 +174,7 @@ export default function CartView({
                 <div className="flex justify-between items-start gap-3">
                   <div className="flex flex-col text-left">
                     <span className="text-[9px] tracking-widest text-[#DFBA6B] font-semibold uppercase">
-                      {item.product.category === 'correntes' ? 'Corrente' : item.product.category === 'pulseiras' ? 'Pulseira' : 'Anel'}
+                      {item.product.category === 'correntes' ? 'Corrente' : 'Pulseira'}
                     </span>
                     <h3 className="font-serif text-xs sm:text-sm text-white font-medium truncate">
                       {item.product.name}

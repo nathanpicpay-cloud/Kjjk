@@ -951,13 +951,13 @@ export default function AdminView({
                 <GlassCard className="lg:col-span-5 p-6 flex flex-col gap-4 border border-white/5">
                   <h3 className="font-serif text-xs uppercase tracking-widest font-bold text-[#DFBA6B] border-b border-white/5 pb-3">Distribuição do Catálogo</h3>
                   <div className="flex flex-col gap-4 py-1">
-                    {['correntes', 'pulseiras', 'aneis'].map((cat) => {
+                    {['correntes', 'pulseiras'].map((cat) => {
                       const count = categoryCounts[cat] || 0;
                       const pct = products.length > 0 ? (count / products.length) * 100 : 0;
                       return (
                         <div key={cat} className="flex flex-col gap-1.5 text-left">
                           <div className="flex justify-between items-center text-xs text-zinc-300">
-                            <span className="capitalize font-semibold">{cat === 'aneis' ? 'Anéis' : cat}</span>
+                            <span className="capitalize font-semibold">{cat}</span>
                             <span className="font-mono text-[10px] text-zinc-400">{count} peças ({pct.toFixed(0)}%)</span>
                           </div>
                           <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
@@ -1078,7 +1078,6 @@ export default function AdminView({
                       >
                         <option value="correntes">Correntes</option>
                         <option value="pulseiras">Pulseiras</option>
-                        <option value="aneis">Anéis</option>
                       </select>
                     </div>
                   </div>
@@ -1310,7 +1309,6 @@ export default function AdminView({
                       >
                         <option value="correntes">Correntes</option>
                         <option value="pulseiras">Pulseiras</option>
-                        <option value="aneis">Anéis</option>
                       </select>
                     </div>
                   </div>

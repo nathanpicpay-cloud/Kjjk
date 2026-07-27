@@ -80,7 +80,7 @@ export default function ProductCard({
         <div className="flex flex-col gap-1.5 text-left">
           {/* Category Tag */}
           <span className="text-[10px] tracking-widest text-[#DFBA6B] font-semibold uppercase">
-            {product.category === 'correntes' ? 'Corrente Premium' : product.category === 'pulseiras' ? 'Pulseira Nobre' : 'Anel Exclusivo'}
+            {product.category === 'correntes' ? 'Corrente Premium' : 'Pulseira Nobre'}
           </span>
 
           {/* Product Name */}

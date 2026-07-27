@@ -132,7 +132,7 @@ export default function App() {
 
   // --- Filtering & Searching Catalog States ---
   const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<'todos' | 'correntes' | 'pulseiras' | 'aneis'>('todos');
+  const [categoryFilter, setCategoryFilter] = useState<'todos' | 'correntes' | 'pulseiras'>('todos');
   const [sizeFilter, setSizeFilter] = useState('todos');
   const [sortOption, setSortOption] = useState<'default' | 'price_asc' | 'price_desc' | 'popular'>('default');
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
@@ -782,7 +782,7 @@ export default function App() {
                       <div className="flex flex-col gap-2">
                         <span className="font-semibold text-[#DFBA6B] uppercase tracking-widest pl-1">Filtrar Categoria:</span>
                         <div className="flex flex-col gap-1">
-                          {['todos', 'correntes', 'pulseiras', 'aneis'].map((cat) => (
+                          {['todos', 'correntes', 'pulseiras'].map((cat) => (
                             <button
                               key={cat}
                               onClick={() => setCategoryFilter(cat as any)}
