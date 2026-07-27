@@ -414,12 +414,12 @@ export default function App() {
               {/* Section: Category highlights */}
               <section className="py-16 px-4 md:px-8 max-w-7xl mx-auto text-center flex flex-col gap-10">
                 <div className="flex flex-col gap-1.5 items-center">
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#DFBA6B] font-bold">Artesanato Exclusivo</span>
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#DFBA6B] font-bold">Tá de responsa</span>
                   <h2
                     className="text-2xl md:text-3.5xl font-serif text-white font-medium uppercase tracking-wide leading-snug"
                     style={{ fontFamily: 'Playfair Display, Cormorant Garamond, Georgia, serif' }}
                   >
-                    Categorias Selecionadas
+                    As Peças Que Impõem Respeito
                   </h2>
                   <div className="w-16 h-[1.5px] bg-gradient-to-r from-transparent via-[#DFBA6B] to-transparent mt-1" />
                 </div>
@@ -443,10 +443,10 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
                     <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
                       <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        Coleção Pesada
+                        Pesada viu
                       </span>
                       <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        Correntes Robustas
+                        Correntes de Moeda Antiga
                       </h3>
                     </div>
                   </GlassCard>
@@ -469,10 +469,10 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
                     <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
                       <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        Conjuntos Nobres
+                        Quem conhece sabe
                       </span>
                       <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        Pulseiras de Grife
+                        Pulseiras no Grau
                       </h3>
                     </div>
                   </GlassCard>
@@ -495,10 +495,10 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
                     <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
                       <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        Exclusividade Absoluta
+                        É outro nível
                       </span>
                       <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        Anéis Cravejados
+                        Anéis de Respeito
                       </h3>
                     </div>
                   </GlassCard>
@@ -510,12 +510,12 @@ export default function App() {
                 <div className="max-w-7xl mx-auto flex flex-col gap-10">
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div className="flex flex-col gap-1.5 text-left">
-                      <span className="text-[10px] uppercase tracking-[0.3em] text-[#DFBA6B] font-bold">Mais Cobiçadas</span>
+                      <span className="text-[10px] uppercase tracking-[0.3em] text-[#DFBA6B] font-bold">O homem fica no grau</span>
                       <h2
                         className="text-2xl md:text-3xl font-serif text-white font-medium uppercase tracking-wider"
                         style={{ fontFamily: 'Playfair Display, Cormorant Garamond, Georgia, serif' }}
                       >
-                        Produtos em Destaque
+                        Diferenciadas Que Quem Vê, Respeita
                       </h2>
                     </div>
 
@@ -527,7 +527,7 @@ export default function App() {
                       variant="text"
                       className="text-xs tracking-widest font-semibold flex items-center self-start gap-1 p-0.5 select-none"
                     >
-                      <span>Ver Todas As Joias</span>
+                      <span>Ver Todas As Correntes</span>
                       <ArrowRight className="w-4 h-4" />
                     </PremiumButton>
                   </div>
@@ -583,21 +583,21 @@ export default function App() {
                   <div className="relative z-10 max-w-2xl flex flex-col gap-6 text-left">
                     <span className="inline-flex self-start items-center gap-1.5 px-3 py-1 rounded-full bg-[#DFBA6B]/15 border border-[#DFBA6B]/40 text-[#DFBA6B] text-[9.5px] font-bold uppercase tracking-wider">
                       <Sparkles className="w-3.5 h-3.5" />
-                      Atendimento Sob Medida
+                      Chama No Grau
                     </span>
 
                     <h2
                       className="text-3xl md:text-4xl font-serif text-white font-medium uppercase tracking-wide leading-tight"
                       style={{ fontFamily: 'Playfair Display, Cormorant Garamond, Georgia, serif' }}
                     >
-                      Fale Com Nosso <br />
+                      Chama no WhatsApp VIP <br />
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DFBA6B] via-[#F9E4B7] to-[#AA7C11]">
-                        Consultor no WhatsApp
+                        e Garanta a Sua
                       </span>
                     </h2>
 
                     <p className="text-xs md:text-sm text-zinc-400 font-light font-sans leading-relaxed">
-                      Deseja ver vídeos detalhados de uma corrente Grumet, fecho gaveta ou pulseira? Nossos atendentes VIP estão online agora para enviar imagens reais das peças direto no seu celular e auxiliar na escolha do comprimento perfeito.
+                      Quer ver o brilho de verdade e o peso real da peça no pescoço? Nossos consultores estão de prontidão para te mandar vídeos reais direto no zap. Aqui não tem conversa, o atendimento é diferenciado para quem gosta de andar alinhado.
                     </p>
 
                     <PremiumButton
@@ -606,7 +606,7 @@ export default function App() {
                       className="self-start py-4 px-8 text-xs tracking-widest bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 border-none shadow-none text-white flex items-center gap-2"
                     >
                       <MessageCircle className="w-4.5 h-4.5" />
-                      <span>Falar no WhatsApp VIP</span>
+                      <span>Chama no WhatsApp e escolhe a sua</span>
                     </PremiumButton>
                   </div>
                 </GlassCard>

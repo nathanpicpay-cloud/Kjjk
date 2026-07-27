@@ -194,7 +194,7 @@ export default function AdminView({
   // --- Homepage Banner Management States ---
   const [bannersList, setBannersList] = useState(() => {
     return settings.homepageBanners || [
-      { id: 'banner-1', image: 'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1200&q=80', title: 'Moeda Antiga de Elite', subtitle: 'Correntes Pesadas Banhadas a Ouro 18K • Garantia Vitalícia', tag: 'Coleção Premium', linkView: 'catalog', active: true }
+      { id: 'banner-1', image: 'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1200&q=80', title: 'Use Bodin e fique chique ', subtitle: 'Ande alinhado com a presença imponente das joias em Moeda Antiga banhadas em Ouro 18K. Idênticas ao ouro maciço no peso e brilho.', tag: 'Presença e Status', linkView: 'catalog', active: true }
     ];
   });
   const [showAddBannerForm, setShowAddBannerForm] = useState(false);

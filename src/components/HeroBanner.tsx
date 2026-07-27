@@ -26,9 +26,9 @@ export default function HeroBanner({ onExplore, whatsapp = '5511999999999', bann
         {
           id: 'default-1',
           image: 'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1600&q=90',
-          title: 'O Peso da Conquista',
-          subtitle: 'A elegância inabalável de peças pesadas de Moeda Antiga banhadas com 10 Milésimos de Ouro 18K. Idênticas ao ouro maciço no peso, cor e brilho.',
-          tag: 'Coleção Signature 2026',
+          title: 'Use Bodin e fique chique ',
+          subtitle: 'Ande alinhado com a presença imponente das joias em Moeda Antiga banhadas em Ouro 18K. Idênticas ao ouro maciço no peso, brilho e acabamento. Essa é diferenciada.',
+          tag: 'Presença e Status',
           linkView: 'catalog',
           active: true
         }

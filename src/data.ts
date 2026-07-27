@@ -4,7 +4,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: '1',
     name: 'Corrente Grumet Escamada 8mm - Moeda Antiga',
-    description: 'A Corrente Grumet Escamada de 8mm é a nossa peça de maior prestígio. Fabricada artesanalmente em Moeda Antiga de altíssima pureza e banhada com 10 Milésimos de Ouro 18K, possui o tom, peso e brilho idênticos ao ouro maciço. O fecho gaveta triplo garante máxima segurança com acabamento cirúrgico de alta joalheria. Uma joia indestrutível projetada para durar gerações.',
+    description: 'A Corrente Grumet Escamada de 8mm é pra quem gosta de chegar impondo presença. Essa é pesada, viu! Fabricada artesanalmente em Moeda Antiga de altíssima pureza e banhada com 10 Milésimos de Ouro 18K, ela tem o tom, peso e brilho idênticos ao ouro maciço. O fecho gaveta triplo de responsa garante máxima segurança com acabamento impecável. É peça de respeito para o homem que sabe onde quer chegar.',
     price: 349.90,
     originalPrice: 499.90,
     category: 'correntes',
@@ -53,7 +53,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: '2',
     name: 'Corrente Cadeado Longo 6mm - Moeda Antiga',
-    description: 'Minimalismo de luxo em sua melhor forma. A Corrente Cadeado de 6mm combina elos perfeitamente soldados em moeda antiga com banho premium de Ouro 18K. Uma peça versátil e elegante que transmite sofisticação discreta. Possui excelente durabilidade e acabamento polido espelhado.',
+    description: 'Quem usa, chama atenção pela sofisticação fina. A Cadeado Longo de 6mm combina elos perfeitamente soldados com um banho de ouro impecável. É pra quem gosta de andar alinhado no capricho com uma joia mais versátil, mas sem perder o respeito e o status do ouro de verdade. Uma peça de tirar o chapéu pela elegância discreta.',
     price: 279.90,
     originalPrice: 389.90,
     category: 'correntes',
@@ -85,7 +85,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: '3',
     name: 'Pulseira Grumet Escamada 8mm - Moeda Antiga',
-    description: 'O complemento perfeito para o seu estilo. A Pulseira Grumet Escamada de 8mm traz a presença imponente da moeda antiga banhada a Ouro 18K diretamente para o pulso. Combina perfeitamente com a Corrente Grumet de 8mm para formar o conjunto Bodin Signature.',
+    description: 'Essa pulseira é diferenciada! A Grumet Escamada de 8mm traz a presença imponente da moeda antiga banhada a Ouro 18K direto para o seu pulso. Combina perfeitamente com a corrente de 8mm para formar o conjunto exclusivo Bodin Signature. É outro nível de acabamento, feita para o homem que não aceita menos que o topo.',
     price: 189.90,
     originalPrice: 249.90,
     category: 'pulseiras',
@@ -117,7 +117,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: '4',
     name: 'Corrente Cartier Fina 4mm - Moeda Antiga',
-    description: 'Elos finos com simetria impecável inspirados na alta joalheria francesa. A Corrente Cartier de 4mm em Moeda Antiga com banho de Ouro 18K é a definição de luxo sutil. Perfeita para usar com pingentes ou sozinha para um toque discreto de classe.',
+    description: 'O fecho é seguro e o caimento no pescoço fica fino demais. A Cartier Fina de 4mm é o verdadeiro símbolo de elegância e luxo sutil. Elos perfeitos com simetria cirúrgica banhados a ouro 18k premium. É a escolha certeira para usar com seu pingente preferido ou sozinha. Quem conhece sabe que essa peça é puro status.',
     price: 229.90,
     originalPrice: 299.90,
     category: 'correntes',
@@ -140,7 +140,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: '5',
     name: 'Anel Imperador Cravejado Royal - Ouro 18K',
-    description: 'Um símbolo de poder, riqueza e exclusividade. O Anel Imperador Bodin possui design robusto com laterais trabalhadas e o topo cravejado com 42 micro-zircônias lapidadas da mais alta pureza (brilho equivalente a diamantes VVS). Uma obra-prima banhada a ouro 18k.',
+    description: 'Aqui não tem conversa: esse anel é peça de respeito máximo, o verdadeiro símbolo de conquista e poder do homem. O Anel Imperador Bodin tem design robusto e topo cravejado com 42 micro-zircônias da mais alta pureza que brilham igual diamante. Banhado a ouro 18K, é feito para chegar chegando onde quer que você vá.',
     price: 249.90,
     originalPrice: 349.90,
     category: 'aneis',
@@ -170,7 +170,7 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: '6',
     name: 'Pulseira Tijolinho Luxo 6mm - Moeda Antiga',
-    description: 'Design moderno com estrutura robusta e elos que se encaixam como tijolos dourados. A Pulseira Tijolinho de 6mm é ideal para homens modernos que valorizam a simetria perfeita e o peso expressivo de uma joia de moeda antiga banhada a Ouro 18K.',
+    description: 'O caimento no pulso tá de responsa. A Pulseira Tijolinho de 6mm é ideal para o homem que valoriza o caimento perfeito e elos perfeitamente trabalhados que refletem o brilho do ouro de verdade. Uma peça no capricho com fecho gaveta de alta segurança. É o outro nível que faltava no seu pulso.',
     price: 169.90,
     originalPrice: 229.90,
     category: 'pulseiras',
@@ -338,22 +338,22 @@ export const INITIAL_ORDERS: Order[] = [
 export const SYSTEM_BENEFITS = [
   {
     title: 'Garantia Eterna',
-    description: 'Nossas joias de Moeda Antiga não enferrujam, não descascam e possuem garantia vitalícia do metal.',
+    description: 'Essa é pra durar a vida toda. Nossas joias não enferrujam, não descascam e mantêm a imponência de geração em geração.',
     icon: 'ShieldCheck'
   },
   {
-    title: 'Banho de 10 Milésimos',
-    description: 'Altíssima concentração de Ouro 18K de verdade + Verniz Suíço antialérgico selador protetor.',
+    title: 'Ouro 18K de Verdade',
+    description: 'Brilho incomparável de ouro maciço com banho ultra-resistente de 10 Milésimos + Verniz Suíço selador.',
     icon: 'Award'
   },
   {
-    title: 'Frete Grátis Brasil',
-    description: 'Envio com rastreamento detalhado seguro e seguro contra extravios para qualquer estado.',
+    title: 'Frete Grátis e Seguro',
+    description: 'Envio rápido e no capricho com rastreamento detalhado até sua casa na Bahia ou qualquer canto do Brasil.',
     icon: 'Truck'
   },
   {
-    title: 'Suporte VIP WhatsApp',
-    description: 'Consultores especializados de prontidão para tirar dúvidas, auxiliar na compra e enviar fotos reais.',
+    title: 'Atendimento no Grau',
+    description: 'Aqui o papo é direto com especialista no WhatsApp para mandar vídeo real do brilho e fecho de cada peça.',
     icon: 'MessageCircle'
   }
 ];
