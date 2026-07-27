@@ -526,73 +526,7 @@ export default function App() {
                 banners={settings.homepageBanners}
               />
 
-              {/* Section: Category highlights */}
-              <section className="py-16 px-4 md:px-8 max-w-7xl mx-auto text-center flex flex-col gap-10">
-                <div className="flex flex-col gap-1.5 items-center">
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#DFBA6B] font-bold">Tá de responsa</span>
-                  <h2
-                    className="text-2xl md:text-3.5xl font-serif text-white font-medium uppercase tracking-wide leading-snug"
-                    style={{ fontFamily: 'Playfair Display, Cormorant Garamond, Georgia, serif' }}
-                  >
-                    As Peças Que Impõem Respeito
-                  </h2>
-                  <div className="w-16 h-[1.5px] bg-gradient-to-r from-transparent via-[#DFBA6B] to-transparent mt-1" />
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                  {/* Category 1 */}
-                  <GlassCard
-                    onClick={() => {
-                      setCategoryFilter('correntes');
-                      setCurrentView('catalog');
-                    }}
-                    hoverEffect={true}
-                    className="p-1 aspect-[4/3] relative rounded-2xl group cursor-pointer overflow-hidden border border-[#D4AF37]/10"
-                  >
-                    <img
-                      src={settings.categoryShowcase?.correntes?.image || "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=600&q=80"}
-                      alt=""
-                      className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-85"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
-                    <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        {settings.categoryShowcase?.correntes?.slogan || "Pesada viu"}
-                      </span>
-                      <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        {settings.categoryShowcase?.correntes?.title || "Correntes de Moeda Antiga"}
-                      </h3>
-                    </div>
-                  </GlassCard>
-
-                  {/* Category 2 */}
-                  <GlassCard
-                    onClick={() => {
-                      setCategoryFilter('pulseiras');
-                      setCurrentView('catalog');
-                    }}
-                    hoverEffect={true}
-                    className="p-1 aspect-[4/3] relative rounded-2xl group cursor-pointer overflow-hidden border border-[#D4AF37]/10"
-                  >
-                    <img
-                      src={settings.categoryShowcase?.pulseiras?.image || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80"}
-                      alt=""
-                      className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-85"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
-                    <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        {settings.categoryShowcase?.pulseiras?.slogan || "Quem conhece sabe"}
-                      </span>
-                      <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        {settings.categoryShowcase?.pulseiras?.title || "Pulseiras no Grau"}
-                      </h3>
-                    </div>
-                  </GlassCard>
-                </div>
-              </section>
 
               {/* Section: Best Sellers Spotlight */}
               <section className="py-16 bg-gradient-to-b from-zinc-950 to-[#050505] border-y border-white/5 px-4 md:px-8">
@@ -777,27 +711,7 @@ export default function App() {
                     exit={{ opacity: 0, height: 0 }}
                     className="overflow-hidden"
                   >
-                    <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs backdrop-blur-[20px] card-shadow">
-                      {/* Filter category */}
-                      <div className="flex flex-col gap-2">
-                        <span className="font-semibold text-[#DFBA6B] uppercase tracking-widest pl-1">Filtrar Categoria:</span>
-                        <div className="flex flex-col gap-1">
-                          {['todos', 'correntes', 'pulseiras'].map((cat) => (
-                            <button
-                              key={cat}
-                              onClick={() => setCategoryFilter(cat as any)}
-                              className={`text-left py-1.5 px-3 rounded-lg transition-colors font-sans capitalize cursor-pointer ${
-                                categoryFilter === cat
-                                  ? 'bg-white/10 text-white font-semibold'
-                                  : 'text-[#A1A1A6] hover:text-white'
-                              }`}
-                            >
-                              {cat === 'todos' ? 'Todas Peças' : cat}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
+                    <div className="p-5 rounded-xl bg-white/[0.03] border border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs backdrop-blur-[20px] card-shadow">
                       {/* Filter lengths */}
                       <div className="flex flex-col gap-2">
                         <span className="font-semibold text-[#DFBA6B] uppercase tracking-widest pl-1">Filtrar Medidas:</span>
