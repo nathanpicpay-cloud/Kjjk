@@ -39,11 +39,15 @@ export async function getProductsFromDb(): Promise<Product[]> {
     if (productsList.length === 0) {
       // Seed initial products
       console.log('Seeding initial products to Firestore...');
-      for (const prod of INITIAL_PRODUCTS) {
+      for (let i = 0; i < INITIAL_PRODUCTS.length; i++) {
+        const prod = { ...INITIAL_PRODUCTS[i], displayOrder: i };
         await setDoc(doc(db, 'products', prod.id), prod);
         productsList.push(prod);
       }
     }
+    
+    // Sort products based on their displayOrder to ensure persistent sorting sequence
+    productsList.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
     return productsList;
   } catch (error) {
     console.error('Error fetching products from Firestore, falling back to local:', error);

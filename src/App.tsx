@@ -359,19 +359,16 @@ export default function App() {
   // --- Administrative Backoffice Handlers ---
   const handleAdminAddProduct = (newProduct: Product) => {
     setProducts((prev) => [newProduct, ...prev]);
-    saveProductToDb(newProduct);
   };
 
   const handleAdminUpdateProduct = (updatedProduct: Product) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
     );
-    saveProductToDb(updatedProduct);
   };
 
   const handleAdminDeleteProduct = (productId: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
-    deleteProductFromDb(productId);
   };
 
   const handleAdminUpdateOrderStatus = (orderId: string, status: Order['status']) => {
@@ -403,6 +400,47 @@ export default function App() {
 
   const handleAdminUpdateSettings = (updatedSettings: AppSettings) => {
     setSettings(updatedSettings);
+  };
+
+  const handleSaveAllChanges = async (): Promise<boolean> => {
+    try {
+      // 1. Sincronizar configurações globais do e-commerce
+      await saveSettingsToDb(settings);
+
+      // 2. Sincronizar cupons de desconto
+      for (const coupon of coupons) {
+        await saveCouponToDb(coupon);
+      }
+
+      // 3. Obter produtos atuais no Firestore para identificar itens excluídos
+      const currentDbProducts = await getProductsFromDb();
+      const localProductIds = new Set(products.map((p) => p.id));
+
+      // Deletar do Firestore produtos que foram excluídos localmente
+      for (const dbProd of currentDbProducts) {
+        if (!localProductIds.has(dbProd.id)) {
+          await deleteProductFromDb(dbProd.id);
+          console.log(`Produto ${dbProd.id} (${dbProd.name}) removido do Firestore.`);
+        }
+      }
+
+      // 4. Salvar todos os produtos locais com displayOrder atualizado (preservando ordenação)
+      const savePromises = products.map((prod, index) => {
+        const updatedProd = { ...prod, displayOrder: index };
+        return saveProductToDb(updatedProd);
+      });
+      await Promise.all(savePromises);
+
+      // 5. Atualizar backups locais persistentes
+      localStorage.setItem('bodin_products', JSON.stringify(products));
+      localStorage.setItem('bodin_settings', JSON.stringify(settings));
+      localStorage.setItem('bodin_coupons', JSON.stringify(coupons));
+
+      return true;
+    } catch (err) {
+      console.error('Erro crítico ao sincronizar alterações com o Firestore:', err);
+      return false;
+    }
   };
 
   // --- Filter Catalog Engine Logic ---
@@ -1010,6 +1048,7 @@ export default function App() {
                     sessionStorage.removeItem('bodin_allowed_login_access');
                   }}
                   onReorderProducts={setProducts}
+                  onSaveAllChanges={handleSaveAllChanges}
                 />
               ) : (
                 <AdminLogin

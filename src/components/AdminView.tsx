@@ -31,7 +31,9 @@ import {
   Upload,
   Layers,
   Sparkles,
-  Info
+  Info,
+  Save,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Product, Order, Coupon, AppSettings } from '../types';
@@ -51,6 +53,7 @@ interface AdminViewProps {
   onUpdateSettings: (settings: AppSettings) => void;
   onLogout?: () => void;
   onReorderProducts?: (products: Product[]) => void;
+  onSaveAllChanges?: () => Promise<boolean>;
 }
 
 const compressAndConvertToBase64 = (file: File): Promise<string> => {
@@ -118,12 +121,46 @@ export default function AdminView({
   onToggleCoupon,
   onUpdateSettings,
   onLogout,
-  onReorderProducts
+  onReorderProducts,
+  onSaveAllChanges
 }: AdminViewProps) {
   // Sidebar states
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'coupons' | 'homepage' | 'settings' | 'security'>('overview');
   const [isUploading, setIsUploading] = useState<{[key: string]: boolean}>({});
+
+  // Global unsaved changes state & custom toast feedback
+  const [isSavingAll, setIsSavingAll] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'warning' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'warning' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  const handleGlobalSave = async () => {
+    if (!onSaveAllChanges) return;
+    setIsSavingAll(true);
+    try {
+      const success = await onSaveAllChanges();
+      if (success) {
+        setHasUnsavedChanges(false);
+        addLog('Sincronização', 'Todas as alterações administrativas foram salvas no Firestore', 'success');
+        showToast('Todas as alterações foram salvas com sucesso no Firestore!', 'success');
+      } else {
+        addLog('Erro de Gravação', 'Falha ao salvar as alterações no banco', 'error');
+        showToast('Erro ao salvar as alterações. Tente novamente.', 'error');
+      }
+    } catch (error) {
+      console.error(error);
+      addLog('Erro de Gravação', 'Erro crítico durante a sincronização', 'error');
+      showToast('Erro crítico ao salvar as alterações.', 'error');
+    } finally {
+      setIsSavingAll(false);
+    }
+  };
 
   // Activity logs persistence
   const [logs, setLogs] = useState<ActivityLog[]>(() => {
@@ -325,7 +362,9 @@ export default function AdminView({
 
     if (onReorderProducts) {
       onReorderProducts(updated);
+      setHasUnsavedChanges(true);
       addLog('Ordenação', `Ordem de exibição do catálogo reorganizada`, 'success');
+      showToast('Posição alterada. Salve as alterações para persistir a nova ordem!', 'success');
     } else {
       // Local reorder backup call
       localStorage.setItem('bodin_products', JSON.stringify(updated));
@@ -372,7 +411,9 @@ export default function AdminView({
     };
 
     onAddProduct(generatedProduct);
+    setHasUnsavedChanges(true);
     addLog('Cadastro', `Peça "${newProdName}" cadastrada com sucesso`, 'success');
+    showToast(`Peça "${newProdName}" cadastrada. Salve as alterações para persistir!`, 'success');
 
     // Reset forms
     setNewProdName('');
@@ -415,7 +456,7 @@ export default function AdminView({
     e.preventDefault();
     if (!editingProduct) return;
     if (!editProdName || !editProdPrice || !editProdDescription) {
-      alert('Preencha os campos obrigatórios.');
+      showToast('Preencha os campos obrigatórios.', 'error');
       return;
     }
 
@@ -447,7 +488,9 @@ export default function AdminView({
     };
 
     onUpdateProduct(updatedProduct);
+    setHasUnsavedChanges(true);
     addLog('Edição', `Peça "${editProdName}" atualizada com sucesso`, 'success');
+    showToast(`Peça "${editProdName}" atualizada. Salve as alterações para persistir!`, 'success');
     setEditingProduct(null);
   };
 
@@ -461,14 +504,22 @@ export default function AdminView({
       reviews: []
     };
     onAddProduct(duplicated);
+    setHasUnsavedChanges(true);
     addLog('Duplicação', `Peça "${p.name}" duplicada com sucesso`, 'success');
+    showToast(`Cópia de "${p.name}" criada. Salve as alterações para persistir!`, 'success');
   };
 
   const handleDeleteProductSecure = (productId: string, productName: string) => {
-    const confirm = window.confirm(`Deseja mesmo excluir permanentemente o produto "${productName}"? Esta operação é irreversível.`);
-    if (confirm) {
-      onDeleteProduct(productId);
-      addLog('Exclusão', `Peça "${productName}" removida do catálogo`, 'warning');
+    setProductToDelete({ id: productId, name: productName });
+  };
+
+  const confirmDeleteProduct = () => {
+    if (productToDelete) {
+      onDeleteProduct(productToDelete.id);
+      setHasUnsavedChanges(true);
+      addLog('Exclusão', `Peça "${productToDelete.name}" removida do catálogo`, 'warning');
+      showToast(`Peça "${productToDelete.name}" removida do catálogo local. Salve as alterações para persistir!`, 'warning');
+      setProductToDelete(null);
     }
   };
 
@@ -484,7 +535,9 @@ export default function AdminView({
     };
 
     onAddCoupon(coupon);
+    setHasUnsavedChanges(true);
     addLog('Cupom Criado', `Cupom de Desconto "${coupon.code}" ativado`, 'success');
+    showToast(`Cupom "${coupon.code}" criado. Salve as alterações para persistir!`, 'success');
     setNewCouponCode('');
     setNewCouponVal('');
     setShowCouponForm(false);
@@ -512,6 +565,8 @@ export default function AdminView({
       ...settings,
       homepageBanners: updatedBanners
     });
+    setHasUnsavedChanges(true);
+    showToast(`Banner "${newBannerTitle}" adicionado. Salve as alterações para persistir!`, 'success');
 
     setNewBannerImg('');
     setNewBannerTitle('');
@@ -527,6 +582,8 @@ export default function AdminView({
       ...settings,
       homepageBanners: updated
     });
+    setHasUnsavedChanges(true);
+    showToast('Banner alternado. Salve as alterações para persistir!', 'success');
     addLog('Banner Alternado', `Status do banner administrativo modificado`, 'info');
   };
 
@@ -537,6 +594,8 @@ export default function AdminView({
       ...settings,
       homepageBanners: updated
     });
+    setHasUnsavedChanges(true);
+    showToast('Banner removido. Salve as alterações para persistir!', 'warning');
     addLog('Banner Excluído', `Banner promocional removido`, 'warning');
   };
 
@@ -547,6 +606,8 @@ export default function AdminView({
       ...settings,
       homepageSections: updated
     });
+    setHasUnsavedChanges(true);
+    showToast('Visibilidade da seção alternada. Salve as alterações para persistir!', 'success');
     addLog('Seção Alternada', `Seção da página inicial alternada com sucesso`, 'info');
   };
 
@@ -566,6 +627,8 @@ export default function AdminView({
       ...settings,
       homepageSections: reordered
     });
+    setHasUnsavedChanges(true);
+    showToast('Seção reordenada. Salve as alterações para persistir a nova ordem!', 'success');
     addLog('Ordenação de Seção', `Posicionamento de seções da vitrine alterada`, 'success');
   };
 
@@ -593,7 +656,9 @@ export default function AdminView({
       homepageSections: sectionsList
     });
 
-    addLog('Configurações', `Parâmetros gerais do e-commerce salvos no banco`, 'success');
+    setHasUnsavedChanges(true);
+    addLog('Configurações', `Parâmetros do e-commerce alterados`, 'success');
+    showToast('Configurações gerais aplicadas. Salve as alterações para persistir!', 'success');
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
   };
@@ -736,10 +801,40 @@ export default function AdminView({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/20 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider animate-pulse">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/20 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>Conexão Supabase Ativa</span>
+              <span>Firestore Sincronizado</span>
             </span>
+
+            {onSaveAllChanges && (
+              <PremiumButton
+                onClick={handleGlobalSave}
+                disabled={isSavingAll}
+                className={`py-2 px-4 text-xs font-semibold tracking-wider flex items-center gap-2 relative transition-all duration-300 ${
+                  hasUnsavedChanges
+                    ? 'bg-gradient-to-r from-[#DFBA6B] to-[#AA7C11] text-black font-extrabold shadow-[0_0_20px_rgba(223,186,107,0.35)] scale-105 border-none'
+                    : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-850'
+                }`}
+              >
+                {isSavingAll ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-current" />
+                    <span>Salvando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Salvar Alterações</span>
+                    {hasUnsavedChanges && (
+                      <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[9px] text-white font-extrabold items-center justify-center shadow-md">!</span>
+                      </span>
+                    )}
+                  </>
+                )}
+              </PremiumButton>
+            )}
           </div>
         </header>
 
@@ -1601,7 +1696,9 @@ export default function AdminView({
                       <button
                         onClick={() => {
                           onToggleCoupon(c.code);
+                          setHasUnsavedChanges(true);
                           addLog('Alternação de Cupom', `Cupom de Desconto ${c.code} alternado`, 'info');
+                          showToast(`Status do cupom "${c.code}" alterado. Salve as alterações para persistir!`, 'success');
                         }}
                         className="py-1.5 px-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 transition-all text-xs"
                       >
@@ -1932,6 +2029,82 @@ export default function AdminView({
           )}
         </div>
       </main>
+
+      {/* CUSTOM SECURE DELETE DIALOG */}
+      <AnimatePresence>
+        {productToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-zinc-950 border border-white/10 p-6 rounded-2xl max-w-md w-full shadow-2xl relative"
+            >
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-red-950/20 border border-red-500/20 text-red-400 rounded-xl">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-serif text-base text-white uppercase tracking-wider font-semibold">Excluir Produto?</h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed font-sans mt-2">
+                    Deseja mesmo remover permanentemente a peça <strong className="text-white">"{productToDelete.name}"</strong>? 
+                    Esta alteração será aplicada localmente e sincronizada com o banco de dados no Firestore ao clicar no botão "Salvar Alterações".
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-3 mt-6">
+                <button
+                  onClick={() => setProductToDelete(null)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white transition-all cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteProduct}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20 transition-all cursor-pointer"
+                >
+                  Confirmar Exclusão
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* CUSTOM FLOATING FEEDBACK TOASTS */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full">
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className={`p-4 rounded-xl border shadow-2xl pointer-events-auto flex items-start gap-3 backdrop-blur-md ${
+                toast.type === 'success' 
+                  ? 'bg-emerald-950/90 border-emerald-500/30 text-emerald-300' 
+                  : toast.type === 'warning'
+                    ? 'bg-amber-950/90 border-amber-500/30 text-amber-300'
+                    : 'bg-red-950/90 border-red-500/30 text-red-300'
+              }`}
+            >
+              <div className="shrink-0 mt-0.5">
+                {toast.type === 'success' && <Check className="w-4 h-4 text-emerald-400" />}
+                {toast.type === 'warning' && <AlertCircle className="w-4 h-4 text-amber-400" />}
+                {toast.type === 'error' && <X className="w-4 h-4 text-red-400" />}
+              </div>
+              <div className="flex-1 text-xs font-sans text-left leading-relaxed">
+                {toast.message}
+              </div>
+              <button 
+                onClick={() => setToast(null)}
+                className="text-zinc-400 hover:text-white transition-all shrink-0 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
