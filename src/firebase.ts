@@ -93,7 +93,19 @@ export async function getSettingsFromDb(): Promise<AppSettings> {
             linkView: 'catalog',
             active: true
           }
-        ]
+        ],
+        categoryShowcase: {
+          correntes: {
+            title: 'Correntes de Moeda Antiga',
+            slogan: 'Pesada viu',
+            image: 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=600&q=80'
+          },
+          pulseiras: {
+            title: 'Pulseiras no Grau',
+            slogan: 'Quem conhece sabe',
+            image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80'
+          }
+        }
       };
       await setDoc(docRef, defaultSettings);
       return defaultSettings;

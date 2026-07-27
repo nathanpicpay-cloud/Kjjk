@@ -117,5 +117,17 @@ export interface AppSettings {
     active: boolean;
     order: number;
   }[];
+  categoryShowcase?: {
+    correntes: {
+      title: string;
+      slogan: string;
+      image: string;
+    };
+    pulseiras: {
+      title: string;
+      slogan: string;
+      image: string;
+    };
+  };
 }
 

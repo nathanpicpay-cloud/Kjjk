@@ -539,7 +539,7 @@ export default function App() {
                   <div className="w-16 h-[1.5px] bg-gradient-to-r from-transparent via-[#DFBA6B] to-transparent mt-1" />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
                   {/* Category 1 */}
                   <GlassCard
                     onClick={() => {
@@ -550,7 +550,7 @@ export default function App() {
                     className="p-1 aspect-[4/3] relative rounded-2xl group cursor-pointer overflow-hidden border border-[#D4AF37]/10"
                   >
                     <img
-                      src="https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=600&q=80"
+                      src={settings.categoryShowcase?.correntes?.image || "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=600&q=80"}
                       alt=""
                       className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-85"
                       referrerPolicy="no-referrer"
@@ -558,10 +558,10 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
                     <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
                       <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        Pesada viu
+                        {settings.categoryShowcase?.correntes?.slogan || "Pesada viu"}
                       </span>
                       <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        Correntes de Moeda Antiga
+                        {settings.categoryShowcase?.correntes?.title || "Correntes de Moeda Antiga"}
                       </h3>
                     </div>
                   </GlassCard>
@@ -576,7 +576,7 @@ export default function App() {
                     className="p-1 aspect-[4/3] relative rounded-2xl group cursor-pointer overflow-hidden border border-[#D4AF37]/10"
                   >
                     <img
-                      src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80"
+                      src={settings.categoryShowcase?.pulseiras?.image || "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80"}
                       alt=""
                       className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-85"
                       referrerPolicy="no-referrer"
@@ -584,36 +584,10 @@ export default function App() {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
                     <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
                       <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        Quem conhece sabe
+                        {settings.categoryShowcase?.pulseiras?.slogan || "Quem conhece sabe"}
                       </span>
                       <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        Pulseiras no Grau
-                      </h3>
-                    </div>
-                  </GlassCard>
-
-                  {/* Category 3 */}
-                  <GlassCard
-                    onClick={() => {
-                      setCategoryFilter('aneis');
-                      setCurrentView('catalog');
-                    }}
-                    hoverEffect={true}
-                    className="p-1 aspect-[4/3] relative rounded-2xl group cursor-pointer overflow-hidden border border-[#D4AF37]/10"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80"
-                      alt=""
-                      className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105 opacity-60 group-hover:opacity-85"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F0F] via-[#0F0F0F]/30 to-transparent z-10 rounded-xl" />
-                    <div className="absolute bottom-5 left-5 right-5 z-20 text-left flex flex-col gap-0.5">
-                      <span className="text-[9px] uppercase tracking-widest text-[#DFBA6B] font-bold">
-                        É outro nível
-                      </span>
-                      <h3 className="font-serif text-lg text-white font-medium uppercase tracking-wide">
-                        Anéis de Respeito
+                        {settings.categoryShowcase?.pulseiras?.title || "Pulseiras no Grau"}
                       </h3>
                     </div>
                   </GlassCard>

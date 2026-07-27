@@ -289,6 +289,15 @@ export default function AdminView({
   const [settingsMinFrete, setSettingsMinFrete] = useState(settings.minFreteGratis.toString());
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // --- Category Showcase Management States ---
+  const [catCorrentesTitle, setCatCorrentesTitle] = useState(settings.categoryShowcase?.correntes?.title || 'Correntes de Moeda Antiga');
+  const [catCorrentesSlogan, setCatCorrentesSlogan] = useState(settings.categoryShowcase?.correntes?.slogan || 'Pesada viu');
+  const [catCorrentesImage, setCatCorrentesImage] = useState(settings.categoryShowcase?.correntes?.image || 'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=600&q=80');
+
+  const [catPulseirasTitle, setCatPulseirasTitle] = useState(settings.categoryShowcase?.pulseiras?.title || 'Pulseiras no Grau');
+  const [catPulseirasSlogan, setCatPulseirasSlogan] = useState(settings.categoryShowcase?.pulseiras?.slogan || 'Quem conhece sabe');
+  const [catPulseirasImage, setCatPulseirasImage] = useState(settings.categoryShowcase?.pulseiras?.image || 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80');
+
   // --- Homepage Banner Management States ---
   const [bannersList, setBannersList] = useState(() => {
     return settings.homepageBanners || [
@@ -653,7 +662,19 @@ export default function AdminView({
       privacyPolicy: settingsPrivacyPolicy.trim(),
       refundPolicy: settingsRefundPolicy.trim(),
       homepageBanners: bannersList,
-      homepageSections: sectionsList
+      homepageSections: sectionsList,
+      categoryShowcase: {
+        correntes: {
+          title: catCorrentesTitle.trim(),
+          slogan: catCorrentesSlogan.trim(),
+          image: catCorrentesImage.trim()
+        },
+        pulseiras: {
+          title: catPulseirasTitle.trim(),
+          slogan: catPulseirasSlogan.trim(),
+          image: catPulseirasImage.trim()
+        }
+      }
     });
 
     setHasUnsavedChanges(true);
@@ -1898,6 +1919,120 @@ export default function AdminView({
                     <GlassInput label="CEP Origem Expedição" value={settingsCepOrigem} onChange={(e) => setSettingsCepOrigem(e.target.value)} />
                     <GlassInput label="Min. para Frete Grátis (R$)" type="number" step="0.01" value={settingsMinFrete} onChange={(e) => setSettingsMinFrete(e.target.value)} />
                     <GlassInput label="Cor Primária do Design Hex" value={settingsPrimaryColor} onChange={(e) => setSettingsPrimaryColor(e.target.value)} placeholder="#DFBA6B" />
+                  </div>
+                </GlassCard>
+
+                {/* Section 3.1: Category Highlights Showcase */}
+                <GlassCard className="p-6 flex flex-col gap-6">
+                  <h3 className="font-serif text-sm text-[#DFBA6B] uppercase tracking-wider font-semibold border-b border-white/5 pb-3 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#DFBA6B]" />
+                    <span>3.1. Destaques das Categorias (Vitrine da Página Inicial)</span>
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Correntes Column */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-4">
+                      <h4 className="text-xs font-bold text-[#DFBA6B] uppercase tracking-widest border-b border-white/5 pb-2">Categoria: Correntes</h4>
+                      <GlassInput 
+                        label="Título de Exibição" 
+                        value={catCorrentesTitle} 
+                        onChange={(e) => setCatCorrentesTitle(e.target.value)} 
+                        placeholder="Ex: Correntes de Moeda Antiga" 
+                      />
+                      <GlassInput 
+                        label="Slogan / Tag Curta" 
+                        value={catCorrentesSlogan} 
+                        onChange={(e) => setCatCorrentesSlogan(e.target.value)} 
+                        placeholder="Ex: Pesada viu" 
+                      />
+                      
+                      <div className="flex flex-col gap-2">
+                        <GlassInput 
+                          label="URL da Imagem da Categoria" 
+                          value={catCorrentesImage} 
+                          onChange={(e) => setCatCorrentesImage(e.target.value)} 
+                          placeholder="https://images.unsplash.com/..." 
+                        />
+                        <div className="flex flex-col gap-1.5 mt-1 pl-1">
+                          <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest text-left">Ou Carregar Foto de Capa (PNG/JPEG)</span>
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center justify-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white transition duration-200">
+                              <Upload size={12} className="text-[#DFBA6B]" />
+                              <span>{isUploading['catCorrentesImage'] ? 'Processando...' : 'Selecionar Foto'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/png, image/jpeg, image/jpg" 
+                                className="hidden" 
+                                disabled={isUploading['catCorrentesImage']}
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    handleImageUpload(e.target.files[0], setCatCorrentesImage, 'catCorrentesImage');
+                                  }
+                                }} 
+                              />
+                            </label>
+                            {catCorrentesImage && (
+                              <div className="flex items-center gap-2">
+                                <img src={catCorrentesImage} className="w-12 h-12 object-cover rounded border border-white/10" referrerPolicy="no-referrer" />
+                                <span className="text-[10px] text-emerald-400">Pronto!</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Pulseiras Column */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col gap-4">
+                      <h4 className="text-xs font-bold text-[#DFBA6B] uppercase tracking-widest border-b border-white/5 pb-2">Categoria: Pulseiras</h4>
+                      <GlassInput 
+                        label="Título de Exibição" 
+                        value={catPulseirasTitle} 
+                        onChange={(e) => setCatPulseirasTitle(e.target.value)} 
+                        placeholder="Ex: Pulseiras no Grau" 
+                      />
+                      <GlassInput 
+                        label="Slogan / Tag Curta" 
+                        value={catPulseirasSlogan} 
+                        onChange={(e) => setCatPulseirasSlogan(e.target.value)} 
+                        placeholder="Ex: Quem conhece sabe" 
+                      />
+                      
+                      <div className="flex flex-col gap-2">
+                        <GlassInput 
+                          label="URL da Imagem da Categoria" 
+                          value={catPulseirasImage} 
+                          onChange={(e) => setCatPulseirasImage(e.target.value)} 
+                          placeholder="https://images.unsplash.com/..." 
+                        />
+                        <div className="flex flex-col gap-1.5 mt-1 pl-1">
+                          <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest text-left">Ou Carregar Foto de Capa (PNG/JPEG)</span>
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center justify-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-white transition duration-200">
+                              <Upload size={12} className="text-[#DFBA6B]" />
+                              <span>{isUploading['catPulseirasImage'] ? 'Processando...' : 'Selecionar Foto'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/png, image/jpeg, image/jpg" 
+                                className="hidden" 
+                                disabled={isUploading['catPulseirasImage']}
+                                onChange={(e) => {
+                                  if (e.target.files && e.target.files[0]) {
+                                    handleImageUpload(e.target.files[0], setCatPulseirasImage, 'catPulseirasImage');
+                                  }
+                                }} 
+                              />
+                            </label>
+                            {catPulseirasImage && (
+                              <div className="flex items-center gap-2">
+                                <img src={catPulseirasImage} className="w-12 h-12 object-cover rounded border border-white/10" referrerPolicy="no-referrer" />
+                                <span className="text-[10px] text-emerald-400">Pronto!</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </GlassCard>
 
