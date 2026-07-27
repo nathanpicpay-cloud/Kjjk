@@ -53,6 +53,50 @@ interface AdminViewProps {
   onReorderProducts?: (products: Product[]) => void;
 }
 
+const compressAndConvertToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Max dimension 1024px for balanced quality/size
+        const MAX_DIM = 1024;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Compress quality to 0.7 to ensure small payload (often < 150kb)
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(dataUrl);
+        } else {
+          resolve(event.target?.result as string);
+        }
+      };
+      img.onerror = () => {
+        resolve(event.target?.result as string);
+      };
+    };
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 interface ActivityLog {
   id: string;
   timestamp: string;
@@ -79,6 +123,7 @@ export default function AdminView({
   // Sidebar states
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'coupons' | 'homepage' | 'settings' | 'security'>('overview');
+  const [isUploading, setIsUploading] = useState<{[key: string]: boolean}>({});
 
   // Activity logs persistence
   const [logs, setLogs] = useState<ActivityLog[]>(() => {
@@ -89,6 +134,22 @@ export default function AdminView({
       { id: '2', timestamp: new Date(Date.now() - 3600000).toLocaleTimeString('pt-BR'), action: 'Leitura', details: 'Sincronização de catálogo e pedidos realizada', type: 'info' }
     ];
   });
+
+  const handleImageUpload = async (
+    file: File, 
+    onSuccess: (base64: string) => void, 
+    uploadKey: string
+  ) => {
+    setIsUploading(prev => ({ ...prev, [uploadKey]: true }));
+    try {
+      const base64 = await compressAndConvertToBase64(file);
+      onSuccess(base64);
+    } catch (error) {
+      console.error("Erro ao fazer upload da imagem:", error);
+    } finally {
+      setIsUploading(prev => ({ ...prev, [uploadKey]: false }));
+    }
+  };
 
   const addLog = (action: string, details: string, type: ActivityLog['type'] = 'info') => {
     const newLog: ActivityLog = {
@@ -942,6 +1003,32 @@ export default function AdminView({
                         onChange={(e) => setNewProdImage(e.target.value)}
                         placeholder="https://images.unsplash.com/..."
                       />
+                      <div className="flex flex-col gap-1.5 mt-2 pl-1">
+                        <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ou Carregar Arquivo (PNG/JPEG)</span>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center justify-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition duration-200">
+                            <Upload size={13} className="text-[#DFBA6B]" />
+                            <span>{isUploading['newProdImage'] ? 'Processando...' : 'Selecionar Foto'}</span>
+                            <input 
+                              type="file" 
+                              accept="image/png, image/jpeg, image/jpg" 
+                              className="hidden" 
+                              disabled={isUploading['newProdImage']}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleImageUpload(e.target.files[0], setNewProdImage, 'newProdImage');
+                                }
+                              }} 
+                            />
+                          </label>
+                          {newProdImage && (
+                            <div className="flex items-center gap-2">
+                              <img src={newProdImage} className="w-8 h-8 object-cover rounded border border-white/10" referrerPolicy="no-referrer" />
+                              <span className="text-[10px] text-emerald-400">Pronto!</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <GlassInput
                       label="URL do Vídeo MP4/Youtube (Opcional)"
@@ -962,6 +1049,46 @@ export default function AdminView({
                       rows={2}
                       className="w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-[#DFBA6B] font-sans resize-none"
                     />
+                    <div className="flex flex-col gap-1.5 pl-1">
+                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ou Carregar Fotos Secundárias</span>
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center justify-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition duration-200">
+                          <Upload size={13} className="text-[#DFBA6B]" />
+                          <span>{isUploading['newProdSecImages'] ? 'Carregando...' : 'Selecionar Fotos'}</span>
+                          <input 
+                            type="file" 
+                            accept="image/png, image/jpeg, image/jpg" 
+                            multiple
+                            className="hidden" 
+                            disabled={isUploading['newProdSecImages']}
+                            onChange={async (e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                setIsUploading(prev => ({ ...prev, newProdSecImages: true }));
+                                const uploadedUrls: string[] = [];
+                                for (let i = 0; i < e.target.files.length; i++) {
+                                  try {
+                                    const base64 = await compressAndConvertToBase64(e.target.files[i]);
+                                    uploadedUrls.push(base64);
+                                  } catch (err) {
+                                    console.error("Erro no upload de secundária:", err);
+                                  }
+                                }
+                                const existing = newProdSecImages ? newProdSecImages.split(',').map(u => u.trim()).filter(Boolean) : [];
+                                setNewProdSecImages([...existing, ...uploadedUrls].join(', '));
+                                setIsUploading(prev => ({ ...prev, newProdSecImages: false }));
+                              }
+                            }} 
+                          />
+                        </label>
+                        {newProdSecImages && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {newProdSecImages.split(',').map((url, idx) => (
+                              <img key={idx} src={url.trim()} className="w-8 h-8 object-cover rounded border border-white/10" referrerPolicy="no-referrer" />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1104,6 +1231,32 @@ export default function AdminView({
                         value={editProdImage}
                         onChange={(e) => setEditProdImage(e.target.value)}
                       />
+                      <div className="flex flex-col gap-1.5 mt-2 pl-1">
+                        <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ou Carregar Arquivo (PNG/JPEG)</span>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center justify-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition duration-200">
+                            <Upload size={13} className="text-[#DFBA6B]" />
+                            <span>{isUploading['editProdImage'] ? 'Processando...' : 'Selecionar Foto'}</span>
+                            <input 
+                              type="file" 
+                              accept="image/png, image/jpeg, image/jpg" 
+                              className="hidden" 
+                              disabled={isUploading['editProdImage']}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleImageUpload(e.target.files[0], setEditProdImage, 'editProdImage');
+                                }
+                              }} 
+                            />
+                          </label>
+                          {editProdImage && (
+                            <div className="flex items-center gap-2">
+                              <img src={editProdImage} className="w-8 h-8 object-cover rounded border border-white/10" referrerPolicy="no-referrer" />
+                              <span className="text-[10px] text-emerald-400">Pronto!</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                     <GlassInput
                       label="URL do Vídeo do Produto"
@@ -1122,6 +1275,46 @@ export default function AdminView({
                       rows={2}
                       className="w-full bg-zinc-900 border border-white/10 rounded-lg px-4 py-3 text-xs text-white focus:outline-none focus:border-[#DFBA6B] font-sans resize-none"
                     />
+                    <div className="flex flex-col gap-1.5 pl-1">
+                      <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ou Carregar Fotos Secundárias</span>
+                      <div className="flex items-center gap-3">
+                        <label className="flex items-center justify-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition duration-200">
+                          <Upload size={13} className="text-[#DFBA6B]" />
+                          <span>{isUploading['editProdSecImages'] ? 'Carregando...' : 'Selecionar Fotos'}</span>
+                          <input 
+                            type="file" 
+                            accept="image/png, image/jpeg, image/jpg" 
+                            multiple
+                            className="hidden" 
+                            disabled={isUploading['editProdSecImages']}
+                            onChange={async (e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                setIsUploading(prev => ({ ...prev, editProdSecImages: true }));
+                                const uploadedUrls: string[] = [];
+                                for (let i = 0; i < e.target.files.length; i++) {
+                                  try {
+                                    const base64 = await compressAndConvertToBase64(e.target.files[i]);
+                                    uploadedUrls.push(base64);
+                                  } catch (err) {
+                                    console.error("Erro no upload de secundária:", err);
+                                  }
+                                }
+                                const existing = editProdSecImages ? editProdSecImages.split(',').map(u => u.trim()).filter(Boolean) : [];
+                                setEditProdSecImages([...existing, ...uploadedUrls].join(', '));
+                                setIsUploading(prev => ({ ...prev, editProdSecImages: false }));
+                              }
+                            }} 
+                          />
+                        </label>
+                        {editProdSecImages && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {editProdSecImages.split(',').map((url, idx) => (
+                              <img key={idx} src={url.trim()} className="w-8 h-8 object-cover rounded border border-white/10" referrerPolicy="no-referrer" />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1450,7 +1643,35 @@ export default function AdminView({
                       <GlassInput label="Slogan / Tag (Opcional)" value={newBannerTag} onChange={(e) => setNewBannerTag(e.target.value)} placeholder="Ex: Coleção Signature" />
                     </div>
                     <GlassInput label="Slogan Secundário (Subtitle) *" required value={newBannerSubtitle} onChange={(e) => setNewBannerSubtitle(e.target.value)} placeholder="Correntes Pesadas Banhadas a Ouro..." />
-                    <GlassInput label="URL da Imagem do Banner *" required value={newBannerImg} onChange={(e) => setNewBannerImg(e.target.value)} placeholder="https://images.unsplash.com/..." />
+                    <div className="flex flex-col gap-1.5">
+                      <GlassInput label="URL da Imagem do Banner *" required value={newBannerImg} onChange={(e) => setNewBannerImg(e.target.value)} placeholder="https://images.unsplash.com/..." />
+                      <div className="flex flex-col gap-1.5 mt-1 pl-1">
+                        <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Ou Carregar Arquivo de Banner (PNG/JPEG)</span>
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center justify-center gap-2 cursor-pointer bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition duration-200">
+                            <Upload size={13} className="text-[#DFBA6B]" />
+                            <span>{isUploading['newBannerImg'] ? 'Processando...' : 'Selecionar Foto'}</span>
+                            <input 
+                              type="file" 
+                              accept="image/png, image/jpeg, image/jpg" 
+                              className="hidden" 
+                              disabled={isUploading['newBannerImg']}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  handleImageUpload(e.target.files[0], setNewBannerImg, 'newBannerImg');
+                                }
+                              }} 
+                            />
+                          </label>
+                          {newBannerImg && (
+                            <div className="flex items-center gap-2">
+                              <img src={newBannerImg} className="w-14 h-8 object-cover rounded border border-white/10" referrerPolicy="no-referrer" />
+                              <span className="text-[10px] text-emerald-400">Pronto!</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                     
                     <PremiumButton type="submit" variant="solid" className="py-2.5 text-xs self-start">
                       <span>Adicionar Banner</span>
