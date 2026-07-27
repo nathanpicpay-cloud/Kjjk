@@ -82,7 +82,7 @@ export async function getSettingsFromDb(): Promise<AppSettings> {
         homepageBanners: [
           {
             id: 'banner-1',
-            image: 'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1200&q=80',
+            image: 'https://i.imgur.com/0md8PSt.jpg',
             title: 'Use Bodin e fique chique ',
             subtitle: 'Ande alinhado com a presença imponente das joias em Moeda Antiga banhadas em Ouro 18K. Idênticas ao ouro maciço no peso e brilho.',
             tag: 'Presença e Status',

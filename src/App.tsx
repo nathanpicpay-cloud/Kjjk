@@ -153,7 +153,30 @@ export default function App() {
         setProducts(dbProducts);
         setCoupons(dbCoupons);
         setOrders(dbOrders);
-        setSettings(dbSettings);
+        
+        // Migrate/update any old unsplash banner to the new imgur link automatically
+        const migratedSettings = { ...dbSettings };
+        if (migratedSettings.homepageBanners && migratedSettings.homepageBanners.length > 0) {
+          migratedSettings.homepageBanners = migratedSettings.homepageBanners.map((banner) => {
+            if (banner.image && (banner.image.includes('unsplash.com') || banner.id === 'banner-1' || banner.id === 'default-1')) {
+              return { ...banner, image: 'https://i.imgur.com/0md8PSt.jpg' };
+            }
+            return banner;
+          });
+        } else {
+          migratedSettings.homepageBanners = [
+            {
+              id: 'banner-1',
+              image: 'https://i.imgur.com/0md8PSt.jpg',
+              title: 'Use Bodin e fique chique ',
+              subtitle: 'Ande alinhado com a presença imponente das joias em Moeda Antiga banhadas em Ouro 18K. Idênticas ao ouro maciço no peso e brilho.',
+              tag: 'Presença e Status',
+              linkView: 'catalog',
+              active: true
+            }
+          ];
+        }
+        setSettings(migratedSettings);
         setIsDbLoaded(true);
       } catch (error) {
         console.error('Error loading Firestore collections, continuing with local storage:', error);
